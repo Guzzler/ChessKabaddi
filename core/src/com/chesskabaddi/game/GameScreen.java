@@ -1,114 +1,89 @@
 package com.chesskabaddi.game;
-import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 
+class Piece{
+    static final int PIECEHEIGHT =200;
+    static final int PIECEWIDTH = 200;
 
-public class GameScreen implements Screen {
+    static Piece allPieces[] = new Piece[4];
+    static int numPieces = 0;
+    int xCoord;
+    int yCoord;
+    Rectangle pieceStructure;
+    Texture pieceImage;
+
+    public Piece(int x,int y, Texture pieceTexture){
+        this.yCoord=y;
+        this.xCoord=x;
+        pieceStructure= new Rectangle();
+        pieceStructure.x=x*200;
+        pieceStructure.y=y*200;
+        pieceStructure.width = PIECEWIDTH;
+        pieceStructure.height= PIECEHEIGHT;
+        this.pieceImage = pieceTexture;
+        allPieces[numPieces]= this;
+        numPieces++;
+        System.out.println(allPieces.toString());
+
+    }
+
+    public void changePos(){
+        pieceStructure.x = xCoord* 200;
+        pieceStructure.y = yCoord *200;
+    }
+}
+
+public class GameScreen implements Screen,InputProcessor {
     final ChessKabaddi game;
 
-    Texture dropImage;
-    Texture bucketImage;
+
+    int mouseX,mouseY;
     Texture backgroundImage;
     Texture knightImage;
     Texture kingImage;
     Texture bishopImage;
-    Sound dropSound;
-    Music rainMusic;
     OrthographicCamera camera;
-    Rectangle bucket;
     Rectangle background;
-    Rectangle king;
-    Rectangle bishop;
-    Rectangle knight1;
-    Rectangle knight2;
-    Array<Rectangle> raindrops;
-    long lastDropTime;
-    int dropsGathered;
+    Piece king;
+    Piece bishop;
+    Piece knight1;
+    Piece knight2;
+    Piece currMovePiece;
+
 
     public GameScreen(final ChessKabaddi game) {
         this.game = game;
 
-        // load the images for the droplet and the bucket, 64x64 pixels each
+        // load all images required
         backgroundImage = new Texture(Gdx.files.internal("background.png"));
-        dropImage = new Texture(Gdx.files.internal("droplet.png"));
         knightImage = new Texture(Gdx.files.internal("knight.png"));
         bishopImage = new Texture(Gdx.files.internal("bishop.png"));
         kingImage = new Texture(Gdx.files.internal("king.png"));
-        bucketImage = new Texture(Gdx.files.internal("bucket.png"));
-
-        // load the drop sound effect and the rain background "music"
-        dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
-        rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
-        rainMusic.setLooping(true);
 
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 1200, 800);
 
         background = new Rectangle();
-        background.x = 0; // center the bucket horizontally
-        background.y = 0; // bottom left corner of the bucket is 20 pixels above
-        // the bottom screen edge
+        background.x = 0;
+        background.y = 0;
         background.width = 1200;
         background.height = 800;
 
-        // create a Rectangle to logically represent the bucket
-        knight1 = new Rectangle();
-        knight1.x = 600; // center the bucket horizontally
-        knight1.y = 0 ; // bottom left corner of the bucket is 20 pixels above
-        // the bottom screen edge
-        knight1.width = 200;
-        knight1.height = 200;
-
-        knight2 = new Rectangle();
-        knight2.x = 800; // center the bucket horizontally
-        knight2.y = 0 ; // bottom left corner of the bucket is 20 pixels above
-        // the bottom screen edge
-        knight2.width = 200;
-        knight2.height = 200;
-
-        bishop = new Rectangle();
-        bishop.x = 1000; // center the bucket horizontally
-        bishop.y = 0 ; // bottom left corner of the bucket is 20 pixels above
-        // the bottom screen edge
-        bishop.width = 200;
-        bishop.height = 200;
-
-        king = new Rectangle();
-        king.x = 0; // center the bucket horizontally
-        king.y = 600 ; // bottom left corner of the bucket is 20 pixels above
-        // the bottom screen edge
-        king.width = 200;
-        king.height = 200;
-
-        // create the raindrops array and spawn the first raindrop
-        raindrops = new Array<Rectangle>();
-        spawnRaindrop();
+        knight1 = new Piece(4,0,knightImage);
+        knight2 = new Piece(3,0,knightImage);
+        king = new Piece(0,3,kingImage);
+        bishop = new Piece(5,0,bishopImage);
 
     }
 
-    private void spawnRaindrop() {
-        Rectangle raindrop = new Rectangle();
-        raindrop.x = MathUtils.random(0, 1200 - 64);
-        raindrop.y = 800;
-        raindrop.width = 64;
-        raindrop.height = 64;
-        raindrops.add(raindrop);
-        lastDropTime = TimeUtils.nanoTime();
-    }
 
     @Override
     public void render(float delta) {
@@ -126,55 +101,29 @@ public class GameScreen implements Screen {
         // coordinate system specified by the camera.
         game.batch.setProjectionMatrix(camera.combined);
 
-        // begin a new batch and draw the bucket and
-        // all drops
         game.batch.begin();
-        game.batch.draw(backgroundImage,background.x,background.y,background.width,background.height);
-        game.batch.draw(kingImage, king.x, king.y, king.width, king.height);
-        game.batch.draw(knightImage, knight1.x, knight1.y, knight1.width, knight1.height);
-        game.batch.draw(knightImage, knight2.x, knight2.y, knight2.width, knight2.height);
-        game.batch.draw(bishopImage, bishop.x, bishop.y, bishop.width, bishop.height);
-        for (Rectangle raindrop : raindrops) {
-            game.batch.draw(dropImage, raindrop.x, raindrop.y);
-        }
+        game.batch.draw(backgroundImage, background.x, background.y, background.width, background.height);
+        game.batch.draw(king.pieceImage, king.pieceStructure.x, king.pieceStructure.y, king.pieceStructure.width, king.pieceStructure.height);
+        game.batch.draw(bishop.pieceImage, bishop.pieceStructure.x, bishop.pieceStructure.y, bishop.pieceStructure.width, bishop.pieceStructure.height);
+        game.batch.draw(knight1.pieceImage, knight1.pieceStructure.x, knight1.pieceStructure.y, knight1.pieceStructure.width, knight1.pieceStructure.height);
+        game.batch.draw(knight2.pieceImage, knight2.pieceStructure.x, knight2.pieceStructure.y, knight2.pieceStructure.width, knight2.pieceStructure.height);
+
         game.batch.end();
+    }
 
-        // process user input
-        if (Gdx.input.isTouched()) {
-            Vector3 touchPos = new Vector3();
-            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-            camera.unproject(touchPos);
-//            bucket.x = touchPos.x - 64 / 2;
+    public Piece findPiece(int mouseX,int mouseY){
+        for (Piece currPiece: Piece.allPieces) {
+            if (currPiece.xCoord == mouseX && (currPiece.yCoord) == (3-mouseY)){
+                return currPiece;
+            }
         }
-//        if (Gdx.input.isKeyPressed(Keys.LEFT))
-//            bucket.x -= 200 * Gdx.graphics.getDeltaTime();
-//        if (Gdx.input.isKeyPressed(Keys.RIGHT))
-//            bucket.x += 200 * Gdx.graphics.getDeltaTime();
+        return null;
 
-        // make sure the bucket stays within the screen bounds
-//        if (bucket.x < 0)
-//            bucket.x = 0;
-//        if (bucket.x > 1200 - 64)
-//            bucket.x = 1200 - 64;
-
-        // check if we need to create a new raindrop
-        if (TimeUtils.nanoTime() - lastDropTime > 1000000000)
-            spawnRaindrop();
-
-        // move the raindrops, remove any that are beneath the bottom edge of
-        // the screen or that hit the bucket. In the later case we increase the
-        // value our drops counter and add a sound effect.
-        Iterator<Rectangle> iter = raindrops.iterator();
-        while (iter.hasNext()) {
-            Rectangle raindrop = iter.next();
-            raindrop.y -= 200 * Gdx.graphics.getDeltaTime();
-            if (raindrop.y + 64 < 0)
-                iter.remove();
-//              if (raindrop.overlaps(bucket)) {
-                dropsGathered++;
-                iter.remove();
-//            }
-        }
+    }
+    public void movePiece(Piece p){
+        p.xCoord +=1;
+        p.yCoord -=1;
+        p.changePos();
     }
 
     @Override
@@ -183,8 +132,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        // start the playback of the background music
-        // when the screen is shown
     }
 
     @Override
@@ -201,10 +148,49 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        dropImage.dispose();
-        bucketImage.dispose();
-        dropSound.dispose();
-        rainMusic.dispose();
+        backgroundImage.dispose();
+        knightImage.dispose();
+        bishopImage.dispose();
+        kingImage.dispose();
+    }
+    @Override public boolean mouseMoved (int screenX, int screenY) {
+        // we can also handle mouse movement without anything pressed
+//		camera.unproject(tp.set(screenX, screenY, 0));
+        return false;
     }
 
+    @Override public boolean touchDown (int screenX, int screenY, int pointer, int button) {
+        // ignore if its not left mouse button or first touch pointer
+        mouseX = Gdx.input.getX()/200;
+        mouseY = Gdx.input.getY()/200;
+        currMovePiece = findPiece(mouseX,mouseY);
+        if (currMovePiece !=null){
+            movePiece(currMovePiece);
+        }
+        return true;
+    }
+
+    @Override public boolean touchDragged (int screenX, int screenY, int pointer) {
+        return true;
+    }
+
+    @Override public boolean touchUp (int screenX, int screenY, int pointer, int button) {
+        return true;
+    }
+
+    @Override public boolean keyDown (int keycode) {
+        return false;
+    }
+
+    @Override public boolean keyUp (int keycode) {
+        return false;
+    }
+
+    @Override public boolean keyTyped (char character) {
+        return false;
+    }
+
+    @Override public boolean scrolled (int amount) {
+        return false;
+    }
 }
