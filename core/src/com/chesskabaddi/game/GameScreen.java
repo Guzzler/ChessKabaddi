@@ -8,20 +8,32 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
+class Position{
+    int x,y;
+    public Position(int x,int y){
+        this.x = x;
+        this.y = y;
+    }
+
+    public void changePos(int x,int y){
+        this.x= x;
+        this.y= y;
+    }
+}
+
+
 class Piece{
     static final int PIECEHEIGHT =200;
     static final int PIECEWIDTH = 200;
 
     static Piece allPieces[] = new Piece[4];
     static int numPieces = 0;
-    int xCoord;
-    int yCoord;
+    Position pos;
     Rectangle pieceStructure;
     Texture pieceImage;
 
     public Piece(int x,int y, Texture pieceTexture){
-        this.yCoord=y;
-        this.xCoord=x;
+        pos = new Position(x,y);
         pieceStructure= new Rectangle();
         pieceStructure.x=x*200;
         pieceStructure.y=y*200;
@@ -34,9 +46,25 @@ class Piece{
 
     }
 
-    public void changePos(){
-        pieceStructure.x = xCoord* 200;
-        pieceStructure.y = yCoord *200;
+    public void changePiecePos(){
+        pieceStructure.x = pos.x* 200;
+        pieceStructure.y = pos.y *200;
+    }
+}
+
+class King extends Piece{
+
+    boolean check;
+    boolean checkMate;
+
+    public King(int x,int y,Texture pieceTexture){
+        super(x,y,pieceTexture);
+        check = false;
+        checkMate = false;
+    }
+
+    public void check(){
+
     }
 }
 
@@ -51,7 +79,7 @@ public class GameScreen implements Screen,InputProcessor {
     Texture bishopImage;
     OrthographicCamera camera;
     Rectangle background;
-    Piece king;
+    King king;
     Piece bishop;
     Piece knight1;
     Piece knight2;
@@ -79,7 +107,7 @@ public class GameScreen implements Screen,InputProcessor {
 
         knight1 = new Piece(4,0,knightImage);
         knight2 = new Piece(3,0,knightImage);
-        king = new Piece(0,3,kingImage);
+        king = new King(0,3,kingImage);
         bishop = new Piece(5,0,bishopImage);
 
     }
@@ -113,7 +141,7 @@ public class GameScreen implements Screen,InputProcessor {
 
     public Piece findPiece(int mouseX,int mouseY){
         for (Piece currPiece: Piece.allPieces) {
-            if (currPiece.xCoord == mouseX && (currPiece.yCoord) == (3-mouseY)){
+            if (currPiece.pos.x == mouseX && (currPiece.pos.y) == (3-mouseY)){
                 return currPiece;
             }
         }
@@ -121,9 +149,15 @@ public class GameScreen implements Screen,InputProcessor {
 
     }
     public void movePiece(Piece p){
-        p.xCoord +=1;
-        p.yCoord -=1;
-        p.changePos();
+        p.pos.x +=1;
+        p.pos.y -=1;
+        if (p.pos.x == 3){
+            System.out.println("reached end");
+            GameOver end = new GameOver(game);
+            game.setScreen(end);
+            dispose();
+        }
+        p.changePiecePos();
     }
 
     @Override
