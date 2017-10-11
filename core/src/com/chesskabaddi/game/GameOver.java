@@ -7,11 +7,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 
 public class GameOver implements Screen {
     final ChessKabaddi game;
-
+    int points;
     OrthographicCamera camera;
 
-    public GameOver(final ChessKabaddi game){
+    public GameOver(final ChessKabaddi game,int pts){
         this.game = game;
+        this.points = pts;
         camera = new OrthographicCamera();
         camera.setToOrtho(false,1200,800);
 
@@ -27,6 +28,7 @@ public class GameOver implements Screen {
 
         game.batch.begin();
         game.font.draw(game.batch, "GAME OVER", 500, 400);
+        game.font.draw(game.batch, "Points gained by Defender: "+points,500,300);
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
