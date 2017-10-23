@@ -24,8 +24,8 @@ class Position{
 
 
 class Piece{
-    static final int SQUAREHEIGHT =150;
-    static final int SQUAREWIDTH = 150;
+    static final int PIECEHEIGHT =150;
+    static final int PIECEWIDTH = 150;
 
     static Piece allPieces[] = new Piece[4];
     static int numPieces = 0;
@@ -39,10 +39,10 @@ class Piece{
     public Piece(int x,int y, Texture pieceTexture){
         pos = new Position(x,y);
         pieceStructure= new Rectangle();
-        pieceStructure.x=x*SQUAREWIDTH;
-        pieceStructure.y=y*SQUAREHEIGHT;
-        pieceStructure.width = SQUAREWIDTH;
-        pieceStructure.height= SQUAREHEIGHT;
+        pieceStructure.x=x*PIECEWIDTH;
+        pieceStructure.y=y*PIECEHEIGHT;
+        pieceStructure.width = PIECEWIDTH;
+        pieceStructure.height= PIECEHEIGHT;
         this.pieceImage = pieceTexture;
         allPieces[numPieces]= this;
         numPieces++;
@@ -52,8 +52,8 @@ class Piece{
     }
 
     public void changePiecePos(){
-        pieceStructure.x = pos.x* SQUAREWIDTH;
-        pieceStructure.y = pos.y *SQUAREHEIGHT;
+        pieceStructure.x = pos.x* PIECEWIDTH;
+        pieceStructure.y = pos.y *PIECEHEIGHT;
     }
 }
 
@@ -112,8 +112,8 @@ class Knight extends Piece{
 public class GameScreen implements Screen,InputProcessor {
     final ChessKabaddi game;
 
-    static int SQUAREWIDTH = 200;
-    static int SQUAREHEIGHT = 200;
+    static int SQUAREWIDTH = 150;
+    static int SQUAREHEIGHT = 150;
     boolean attacker;
     boolean defender;
     Piece currSelectedPiece;
@@ -146,21 +146,21 @@ public class GameScreen implements Screen,InputProcessor {
         backgroundImage = new Texture(Gdx.files.internal("background.png"));
         knightImage = new Texture(Gdx.files.internal("knight.png"));
         bishopImage = new Texture(Gdx.files.internal("bishop.png"));
-        kingImage = new Texture(Gdx.files.internal("king2.png"));
+        kingImage = new Texture(Gdx.files.internal("king.png"));
 
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 1200, 600);
+        camera.setToOrtho(false, 1200, 750);
 
         background = new Rectangle();
         background.x = 0;
         background.y = 0;
         background.width = 900;
-        background.height = 600;
+        background.height = 750;
 
         knight1 = new Knight(4,0,knightImage);
         knight2 = new Knight(3,0,knightImage);
-        king = new King(0,3,kingImage);
+        king = new King(0,4,kingImage);
         bishop = new Bishop(5,0,bishopImage);
 
         attacker = true;
@@ -203,7 +203,7 @@ public class GameScreen implements Screen,InputProcessor {
 
     public Piece findPiece(int mouseX,int mouseY){
         for (Piece currPiece: Piece.allPieces) {
-            if (currPiece.pos.x == mouseX && (currPiece.pos.y) == (3-mouseY)){
+            if (currPiece.pos.x == mouseX && (currPiece.pos.y) == (4-mouseY)){
                 if(attacker && !defender && currPiece.getClass() != King.class) {
                     currSelectedPiece = currPiece;
                     return currPiece;
@@ -220,7 +220,7 @@ public class GameScreen implements Screen,InputProcessor {
 
     public Position findPos(int mouseX,int mouseY){
         for (Position pos: currSelectedPiece.validMoves) {
-            if ((pos!=null) && pos.x == mouseX && (pos.y) == (3-mouseY)){
+            if ((pos!=null) && pos.x == mouseX && (pos.y) == (4-mouseY)){
                 currMovePosition = pos;
                 return pos;
             }
@@ -269,8 +269,8 @@ public class GameScreen implements Screen,InputProcessor {
             boolean flag2=true;// check quadrant 2
             boolean flag3=true; // check quadrant 3
             boolean flag4=true;// check quadrant 4
-            for (int i =1;i<=3;i++){
-                for(int j=1;j<=3;j++){
+            for (int i =1;i<=4;i++){
+                for(int j=1;j<=4;j++){
                     if(i==0 || j==0){
                         continue;
                     }
@@ -325,7 +325,7 @@ public class GameScreen implements Screen,InputProcessor {
     public boolean testValid(Piece p,int i,int j){
         if((p.pos.x+i) <0 || (p.pos.x+i)>5)
             return false;
-        else if(p.pos.y+j<0 || (p.pos.y+j) >3)
+        else if(p.pos.y+j<0 || (p.pos.y+j) >4)
             return false;
         else {
             for (Piece currPiece: Piece.allPieces) {
@@ -348,8 +348,8 @@ public class GameScreen implements Screen,InputProcessor {
                             return false;
                         }
                         if(currPiece.getClass() == Bishop.class){ // extra test for bishop check
-                            for(int q = -3;q<3;q++){
-                                for (int r=-3;r<3;r++){
+                            for(int q = -4;q<4;q++){
+                                for (int r=-4;r<4;r++){
                                     if(q==r || q== (0-r)){
                                         if((currPiece.pos.x+q)== (p.pos.x+i) && (currPiece.pos.y+r) == (p.pos.y+j)){
                                             return false;
@@ -393,7 +393,7 @@ public class GameScreen implements Screen,InputProcessor {
     public void resize(int width, int height) {
         System.out.println("Get Width:"+width);
         System.out.println("get Height:"+height);
-        SQUAREHEIGHT = (height)/4;
+        SQUAREHEIGHT = (height)/5;
         SQUAREWIDTH = (width)/8;
         System.out.println("square width:"+SQUAREWIDTH);
         System.out.println("square height:"+SQUAREHEIGHT);

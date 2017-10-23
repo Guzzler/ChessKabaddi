@@ -14,7 +14,7 @@ public class GameOver implements Screen {
         this.game = game;
         this.points = pts;
         camera = new OrthographicCamera();
-        camera.setToOrtho(false,1200,600);
+        camera.setToOrtho(false,1200,750);
 
     }
 

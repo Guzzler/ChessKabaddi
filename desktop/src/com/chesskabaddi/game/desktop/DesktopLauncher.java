@@ -9,7 +9,7 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "Chess Kabaddi";
 		config.width = 1200;
-		config.height = 600;
+		config.height = 750;
 		new LwjglApplication(new ChessKabaddi(), config);
 	}
 }
