@@ -323,6 +323,9 @@ public class GameScreen implements Screen,InputProcessor {
         }
     }
     public boolean testValid(Piece p,int i,int j){
+        if(i==0 && j==0){
+            return false;
+        }
         if((p.pos.x+i) <0 || (p.pos.x+i)>5)
             return false;
         else if(p.pos.y+j<0 || (p.pos.y+j) >4)
