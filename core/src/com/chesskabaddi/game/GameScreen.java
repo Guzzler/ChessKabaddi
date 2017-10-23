@@ -339,6 +339,17 @@ public class GameScreen implements Screen,InputProcessor {
                         if(currPiece.validMoves[k].x ==  (p.pos.x+i) && currPiece.validMoves[k].y == (p.pos.y+j)){
                             return false;
                         }
+                        if(currPiece.getClass() == Bishop.class){ // extra test for bishop check
+                            for(int q = -3;q<3;q++){
+                                for (int r=-3;r<3;r++){
+                                    if(q==r || q== (0-r)){
+                                        if((currPiece.pos.x+q)== (p.pos.x+i) && (currPiece.pos.y+r) == (p.pos.y+j)){
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
