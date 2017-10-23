@@ -24,8 +24,8 @@ class Position{
 
 
 class Piece{
-    static final int PIECEHEIGHT =200;
-    static final int PIECEWIDTH = 200;
+    static final int SQUAREHEIGHT =150;
+    static final int SQUAREWIDTH = 150;
 
     static Piece allPieces[] = new Piece[4];
     static int numPieces = 0;
@@ -39,10 +39,10 @@ class Piece{
     public Piece(int x,int y, Texture pieceTexture){
         pos = new Position(x,y);
         pieceStructure= new Rectangle();
-        pieceStructure.x=x*200;
-        pieceStructure.y=y*200;
-        pieceStructure.width = PIECEWIDTH;
-        pieceStructure.height= PIECEHEIGHT;
+        pieceStructure.x=x*SQUAREWIDTH;
+        pieceStructure.y=y*SQUAREHEIGHT;
+        pieceStructure.width = SQUAREWIDTH;
+        pieceStructure.height= SQUAREHEIGHT;
         this.pieceImage = pieceTexture;
         allPieces[numPieces]= this;
         numPieces++;
@@ -52,8 +52,8 @@ class Piece{
     }
 
     public void changePiecePos(){
-        pieceStructure.x = pos.x* 200;
-        pieceStructure.y = pos.y *200;
+        pieceStructure.x = pos.x* SQUAREWIDTH;
+        pieceStructure.y = pos.y *SQUAREHEIGHT;
     }
 }
 
@@ -62,11 +62,13 @@ class King extends Piece{
     boolean firstCheck;
     boolean checkMate;
     int points;
+    int uncheckedMovesLeft;
     public King(int x,int y,Texture pieceTexture){
         super(x,y,pieceTexture);
         firstCheck = false;
         checkMate = false;
         points =0;
+        uncheckedMovesLeft =10;
         this.numValidMoves=1;
     }
 
@@ -110,12 +112,12 @@ class Knight extends Piece{
 public class GameScreen implements Screen,InputProcessor {
     final ChessKabaddi game;
 
-
+    static int SQUAREWIDTH = 200;
+    static int SQUAREHEIGHT = 200;
     boolean attacker;
     boolean defender;
     Piece currSelectedPiece;
-    static final int PIECEWIDTH = 200;
-    static  final int PIECEHEIGHT=200;
+    
     int mouseX,mouseY;
     Texture backgroundImage;
     Texture knightImage;
@@ -148,13 +150,13 @@ public class GameScreen implements Screen,InputProcessor {
 
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 1200, 800);
+        camera.setToOrtho(false, 1200, 600);
 
         background = new Rectangle();
         background.x = 0;
         background.y = 0;
-        background.width = 1200;
-        background.height = 800;
+        background.width = 900;
+        background.height = 600;
 
         knight1 = new Knight(4,0,knightImage);
         knight2 = new Knight(3,0,knightImage);
@@ -184,7 +186,10 @@ public class GameScreen implements Screen,InputProcessor {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-
+        game.font.draw(game.batch, "Defender's Points: "+king.points, 950, 550);
+        if(!king.firstCheck) {
+            game.font.draw(game.batch, "Moves Left for first Check: " + king.uncheckedMovesLeft, 950, 450);
+        }
         game.batch.draw(backgroundImage, background.x, background.y, background.width, background.height);
         game.batch.draw(king.pieceImage, king.pieceStructure.x, king.pieceStructure.y, king.pieceStructure.width, king.pieceStructure.height);
         game.batch.draw(bishop.pieceImage, bishop.pieceStructure.x, bishop.pieceStructure.y, bishop.pieceStructure.width, bishop.pieceStructure.height);
@@ -313,6 +318,9 @@ public class GameScreen implements Screen,InputProcessor {
         if (k.numValidMoves==0){
             game.setScreen(new GameOver(game,king.points));
         }
+        if (k.uncheckedMovesLeft == 0){
+            game.setScreen(new GameOver(game,50));
+        }
     }
     public boolean testValid(Piece p,int i,int j){
         if((p.pos.x+i) <0 || (p.pos.x+i)>5)
@@ -366,7 +374,7 @@ public class GameScreen implements Screen,InputProcessor {
     public void highlightPiece(Piece p){
         if (p!=null) {
             game.batch.begin();
-            game.batch.draw(redBorderImage, p.pos.x * 200, p.pos.y * 200, PIECEWIDTH, PIECEHEIGHT);
+            game.batch.draw(redBorderImage, p.pos.x * 150, p.pos.y * 150, 150, 150);
             game.batch.end();
         }
     }
@@ -375,7 +383,7 @@ public class GameScreen implements Screen,InputProcessor {
         if (p!=null) {
             game.batch.begin();
             for (int i = 0; i < p.numValidMoves; i++) {
-                game.batch.draw(greenBorderImage, p.validMoves[i].x * 200, p.validMoves[i].y * 200, PIECEWIDTH, PIECEHEIGHT);
+                game.batch.draw(greenBorderImage, p.validMoves[i].x * 150, p.validMoves[i].y * 150, 150, 150);
             }
             game.batch.end();
         }
@@ -383,6 +391,15 @@ public class GameScreen implements Screen,InputProcessor {
 
     @Override
     public void resize(int width, int height) {
+        System.out.println("Get Width:"+width);
+        System.out.println("get Height:"+height);
+        SQUAREHEIGHT = (height)/4;
+        SQUAREWIDTH = (width)/8;
+        System.out.println("square width:"+SQUAREWIDTH);
+        System.out.println("square height:"+SQUAREHEIGHT);
+        for (Piece currPiece: Piece.allPieces) {
+            currPiece.changePiecePos();
+        }
     }
 
     @Override
@@ -416,8 +433,8 @@ public class GameScreen implements Screen,InputProcessor {
 
     @Override public boolean touchDown (int screenX, int screenY, int pointer, int button) {
         // ignore if its not left mouse button or first touch pointer
-            mouseX = Gdx.input.getX() / 200;
-            mouseY = Gdx.input.getY() / 200;
+            mouseX = Gdx.input.getX() / SQUAREWIDTH;
+            mouseY = Gdx.input.getY() / SQUAREHEIGHT ;
         if (currSelectedPiece==null) {
             currMovePiece = findPiece(mouseX, mouseY);
             if (currMovePiece != null) {
@@ -441,6 +458,9 @@ public class GameScreen implements Screen,InputProcessor {
                 else if(defender && !attacker){
                     if(king.firstCheck) {
                         king.points++;
+                    }
+                    else{
+                        king.uncheckedMovesLeft--;
                     }
                     attacker = true;
                     defender = false;
