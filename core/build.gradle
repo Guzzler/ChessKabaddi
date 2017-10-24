@@ -5,7 +5,25 @@ sourceCompatibility = 1.6
 
 sourceSets.main.java.srcDirs = [ "src/" ]
 
+project(":core") {
+    dependencies {
+        compile "com.badlogicgames.gdx:gdx-ai:1.8.0"
+    }
+}
+
+project(":android") {
+    dependencies {
+        compile "com.badlogicgames.gdx:gdx-ai:1.8.0"
+    }
+}
+
+project(":html") {
+    dependencies {
+        compile "com.badlogicgames.gdx:gdx-ai:1.8.0:sources"
+    }
+}
 
 eclipse.project {
     name = appName + "-core"
 }
+
