@@ -77,43 +77,6 @@ class King extends Piece{
         numMoves = 0;
         lastFiveMoves = new Position[5];
     }
-
-    public void addMove(Position x){
-        if (numMoves<5){
-            lastFiveMoves[numMoves]= x;
-        }
-        else{
-            lastFiveMoves[4]= x;
-            for(int i=3;i >=0;i--){
-                lastFiveMoves[i]= lastFiveMoves[i+1];
-            }
-        }
-    }
-    public void checkDuplicateMove() {
-        int arrMoves[] = new int[5];
-        int numDuplicates=0;
-        for (int i = 0; i < 4; i++) {
-            arrMoves[i] = 0;
-        }
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                if (i != j) {
-                    if (lastFiveMoves[i].x == lastFiveMoves[j].x && lastFiveMoves[i].y == lastFiveMoves[j].y) {
-                        arrMoves[i]++;
-                    }
-                }
-            }
-        }
-        for (int i = 0;i<4;i++){
-            if(arrMoves[i]>=1){
-                numDuplicates++;
-            }
-        }
-        numDuplicates/=2;
-        if(numDuplicates >=2){
-            duplicateMove = true;
-        }
-    }
 }
 
 class Bishop extends Piece{
@@ -295,7 +258,7 @@ public class GameScreen implements Screen,InputProcessor {
                 }
             }
         }
-        if (p.getClass() == Knight.class){
+        else if (p.getClass() == Knight.class){
             p.numValidMoves = 0;
             // resetting all valid moves
             for (int i =-2;i<=2;i++){
@@ -313,7 +276,7 @@ public class GameScreen implements Screen,InputProcessor {
                 }
             }
         }
-        if (p.getClass() == Bishop.class){
+        else if (p.getClass() == Bishop.class){
             p.numValidMoves = 0;
             // resetting all valid moves
             boolean flag1=true;// check quadrant 1
@@ -370,67 +333,54 @@ public class GameScreen implements Screen,InputProcessor {
     public void makeAttackerAIDecision(){
 
         Piece pieceToMove = null;
-        Piece secondPieceToMove = null;
-        Position posToMove = null;
-        Position currCheckPos;
-        Position secondPosToMove = null;
+        Position posToMove = new Position(5,5);
+        Position currCheckPos = new Position(5,5);
 
         for (Piece p: Piece.allPieces){
             getValidMoves(p); // get all valid moves before making a move
         }
         int minKingMoves = 10;
-        int secondMinKingMoves = 11;
         for (Piece currPiece: Piece.allPieces){
             if(currPiece.getClass() == King.class){
                 continue;
             }
             else{
                 for(int i=0;i<currPiece.numValidMoves;i++){
-                    currCheckPos = currPiece.validMoves[i];
+                    currCheckPos.x = currPiece.validMoves[i].x;
+                    currCheckPos.y = currPiece.validMoves[i].y;
                     int oldX = currPiece.pos.x;
                     int oldY = currPiece.pos.y;
                     currPiece.pos.x = currCheckPos.x;
                     currPiece.pos.y = currCheckPos.y;
+                    getValidMoves(currPiece);
                     getValidMoves(king);
-                    if(king.numValidMoves <= minKingMoves){
-                        secondMinKingMoves = minKingMoves;
-                        secondPieceToMove = pieceToMove;
-                        secondPosToMove = posToMove;
+                    int numValid = king.numValidMoves;
+                    if(numValid <= minKingMoves){
                         pieceToMove = currPiece;
-                        posToMove = currCheckPos;
-                        minKingMoves = king.numValidMoves;
-                    }
-                    else if(king.numValidMoves <=secondMinKingMoves){
-                        secondMinKingMoves = king.numValidMoves;
-                        secondPieceToMove = currPiece;
-                        secondPosToMove = currCheckPos;
+                        posToMove.x = currCheckPos.x;
+                        posToMove.y = currCheckPos.y;
+                        minKingMoves = numValid;
                     }
                     currPiece.pos.x = oldX;
                     currPiece.pos.y = oldY;
+                    getValidMoves(currPiece);
                 }
             }
         }
-        if(!king.duplicateMove) {
-            pieceToMove.pos.x = posToMove.x;
-            pieceToMove.pos.y = posToMove.y;
-        }
-        else{
-            secondPieceToMove.pos.x = secondPosToMove.x;
-            secondPieceToMove.pos.y = secondPosToMove.y;
-            king.duplicateMove = false;
-        }
+        pieceToMove.pos.x = posToMove.x;
+        pieceToMove.pos.y = posToMove.y;
         pieceToMove.changePiecePos();
     }
 
     public void inferCheckMate(King k) throws InterruptedException {
         if (k.numValidMoves==0){
             k.checkMate=true;
-            TimeUnit.SECONDS.sleep(5);
+            TimeUnit.SECONDS.sleep(2);
             game.setScreen(new GameOver(game,king.points));
         }
         if (k.uncheckedMovesLeft == 0){
             k.checkMate = true;
-            TimeUnit.SECONDS.sleep(5);
+            TimeUnit.SECONDS.sleep(2);
             game.setScreen(new GameOver(game,50));
         }
     }
@@ -510,12 +460,8 @@ public class GameScreen implements Screen,InputProcessor {
 
     @Override
     public void resize(int width, int height) {
-        System.out.println("Get Width:"+width);
-        System.out.println("get Height:"+height);
         SQUAREHEIGHT = (height)/5;
         SQUAREWIDTH = (width)/8;
-        System.out.println("square width:"+SQUAREWIDTH);
-        System.out.println("square height:"+SQUAREHEIGHT);
         for (Piece currPiece: Piece.allPieces) {
             currPiece.changePiecePos();
         }
@@ -568,7 +514,7 @@ public class GameScreen implements Screen,InputProcessor {
                 System.out.println(e);
             }
         }
-        if (currSelectedPiece==null) {
+        else if (currSelectedPiece==null) {
             currMovePiece = findPiece(mouseX, mouseY);
             if (currMovePiece != null) {
                 getValidMoves(currMovePiece);
@@ -592,21 +538,19 @@ public class GameScreen implements Screen,InputProcessor {
                     for (Piece p : Piece.allPieces) {
                         getValidMoves(p);
                     }
-                    king.numMoves++;
-                    king.addMove(currMovePosition);
-                    if (king.numMoves > 5) {
-                        king.checkDuplicateMove();
-                    }
                     if (king.firstCheck) {
                         king.points++;
-                    } else {
+                    }
+                    else {
                         king.uncheckedMovesLeft--;
                     }
                     attacker = true;
                     defender = false;
+
                 }
                 currSelectedPiece = null;
                 currMovePosition = null;
+
             }
         }
         return true;
