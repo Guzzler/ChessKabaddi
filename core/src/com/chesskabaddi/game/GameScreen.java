@@ -11,133 +11,19 @@ import com.badlogic.gdx.math.Rectangle;
 import java.util.concurrent.TimeUnit;
 
 
-class Position{
-    int x,y;
-    public Position(int x,int y){
-        this.x = x;
-        this.y = y;
-    }
-
-    public void changePos(int x,int y){
-        this.x= x;
-        this.y= y;
-    }
-}
-
-
-class Piece{
-    static final int PIECEHEIGHT =150;
-    static final int PIECEWIDTH = 150;
-
-    static Piece allPieces[] = new Piece[4];
-    static int numPieces = 0;
-    Position pos;
-    Position validMoves[] = new Position[9];
-    int numValidMoves;
-    Rectangle pieceStructure;
-    Texture pieceImage;
-    boolean currMove;
-
-    public Piece(int x,int y, Texture pieceTexture){
-        pos = new Position(x,y);
-        pieceStructure= new Rectangle();
-        pieceStructure.x=x*PIECEWIDTH;
-        pieceStructure.y=y*PIECEHEIGHT;
-        pieceStructure.width = PIECEWIDTH;
-        pieceStructure.height= PIECEHEIGHT;
-        this.pieceImage = pieceTexture;
-        allPieces[numPieces]= this;
-        numPieces++;
-        this.numValidMoves =0;
-        currMove=false;
-
-    }
-
-    public void changePiecePos(){
-        pieceStructure.x = pos.x* PIECEWIDTH;
-        pieceStructure.y = pos.y *PIECEHEIGHT;
-    }
-}
-
-class King extends Piece{
-    boolean duplicateMove = false;
-    boolean firstCheck;
-    boolean checkMate;
-    int points;
-    int uncheckedMovesLeft;
-    int numMoves;
-    Position[] lastFiveMoves;
-    public King(int x,int y,Texture pieceTexture){
-        super(x,y,pieceTexture);
-        firstCheck = false;
-        checkMate = false;
-        points =0;
-        uncheckedMovesLeft =10;
-        this.numValidMoves=1;
-        numMoves = 0;
-        lastFiveMoves = new Position[5];
-    }
-}
-
-class Bishop extends Piece{
-
-    boolean check;
-    boolean checkMate;
-
-    public Bishop(int x,int y,Texture pieceTexture){
-        super(x,y,pieceTexture);
-        check = false;
-        checkMate = false;
-    }
-
-    public void check(ChessKabaddi game){
-
-    }
-}
-
-class Knight extends Piece{
-
-    boolean check;
-    boolean checkMate;
-
-    public Knight(int x,int y,Texture pieceTexture){
-        super(x,y,pieceTexture);
-        check = false;
-        checkMate = false;
-    }
-
-    public void check(ChessKabaddi game){
-
-    }
-}
-
-
-
-
-
 public class GameScreen implements Screen,InputProcessor {
     final ChessKabaddi game;
 
-    static int SQUAREWIDTH = 150;
-    static int SQUAREHEIGHT = 150;
-    boolean attacker;
-    boolean defender;
-    Piece currSelectedPiece;
-    
+    private static int SQUAREWIDTH = 150;
+    private static int SQUAREHEIGHT = 150;
     int mouseX,mouseY;
+    boolean multiplayer = false;
+    Attacker attacker;
+    Defender defender;
+    Piece currSelectedPiece;
     Texture backgroundImage;
-    Texture knightImage;
-    Texture kingImage;
-    Texture bishopImage;
-    Texture redBorderImage;
-    Texture greenBorderImage;
     OrthographicCamera camera;
     Rectangle background;
-    Rectangle redBorder;
-    King king;
-    Piece bishop;
-    Piece knight1;
-    Piece knight2;
     Piece currMovePiece;
     Position currMovePosition;
 
@@ -146,13 +32,10 @@ public class GameScreen implements Screen,InputProcessor {
         this.game = game;
 
         // load all images required
-        greenBorderImage = new Texture(Gdx.files.internal("green-border.png"));
-        redBorderImage = new Texture(Gdx.files.internal("red-border.png"));
+
 
         backgroundImage = new Texture(Gdx.files.internal("background.png"));
-        knightImage = new Texture(Gdx.files.internal("knight.png"));
-        bishopImage = new Texture(Gdx.files.internal("bishop.png"));
-        kingImage = new Texture(Gdx.files.internal("king.png"));
+
 
         // create the camera and the SpriteBatch
         camera = new OrthographicCamera();
@@ -164,13 +47,29 @@ public class GameScreen implements Screen,InputProcessor {
         background.width = 900;
         background.height = 750;
 
-        knight1 = new Knight(4,0,knightImage);
-        knight2 = new Knight(3,0,knightImage);
-        king = new King(0,4,kingImage);
-        bishop = new Bishop(5,0,bishopImage);
+        // set background for chessboard
 
-        attacker = true;
-        defender= false;
+        attacker = new Attacker();
+        defender = new Defender();
+        defender.toggleActive();
+        // initialize Attacker and Defender
+        // set Defender Active to false
+
+        Position knight1StartPos = new Position(4,1);
+        Position knight2StartPos = new Position(3,0);
+        Position bishopStartPos = new Position(5,0);
+        Position kingStartPos = new Position(0,4);
+
+        // Set the starting positions for all Pieces
+
+        attacker.initKnight(1,knight1StartPos);
+        attacker.initKnight(2,knight2StartPos);
+        attacker.initBishop(bishopStartPos);
+        defender.initKing(kingStartPos);
+
+        attacker.setActive(false);
+        defender.setActive(true);
+        // setting start state of the game
 
     }
 
@@ -192,22 +91,26 @@ public class GameScreen implements Screen,InputProcessor {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Defender's Points: "+king.points, 950, 550);
-        if(!king.firstCheck) {
-            game.font.draw(game.batch, "Moves Left for first Check: " + king.uncheckedMovesLeft, 950, 450);
+        // display the defender's Points
+        game.font.draw(game.batch, "Defender's Points: "+defender.getPoints(), 950, 550);
+
+        if(!defender.king.firstCheck) { // checks whether the king has been checked once before
+            game.font.draw(game.batch, "Moves Left for first Check: " + defender.king.getUncheckedMoves(), 950, 450);
         }
-        if(attacker && !defender){
+        if(attacker.isActive()){ // if the Attacker is to move
             game.font.draw(game.batch, "Click to see the Attacker AI play !", 950, 300);
         }
-        else{
+        else if(defender.isActive()){ // if the defender is to move
             game.font.draw(game.batch, "Make your move ! ", 950, 300);
         }
 
         game.batch.draw(backgroundImage, background.x, background.y, background.width, background.height);
-        game.batch.draw(king.pieceImage, king.pieceStructure.x, king.pieceStructure.y, king.pieceStructure.width, king.pieceStructure.height);
-        game.batch.draw(bishop.pieceImage, bishop.pieceStructure.x, bishop.pieceStructure.y, bishop.pieceStructure.width, bishop.pieceStructure.height);
-        game.batch.draw(knight1.pieceImage, knight1.pieceStructure.x, knight1.pieceStructure.y, knight1.pieceStructure.width, knight1.pieceStructure.height);
-        game.batch.draw(knight2.pieceImage, knight2.pieceStructure.x, knight2.pieceStructure.y, knight2.pieceStructure.width, knight2.pieceStructure.height);
+        game.batch.draw(defender.king.pieceImage, defender.king.pieceStructure.x, defender.king.pieceStructure.y, defender.king.pieceStructure.width, defender.king.pieceStructure.height);
+        game.batch.draw(attacker.bishop.pieceImage, attacker.bishop.pieceStructure.x, attacker.bishop.pieceStructure.y, attacker.bishop.pieceStructure.width, attacker.bishop.pieceStructure.height);
+        game.batch.draw(attacker.knight1.pieceImage, attacker.knight1.pieceStructure.x, attacker.knight1.pieceStructure.y, attacker.knight1.pieceStructure.width, attacker.knight1.pieceStructure.height);
+        game.batch.draw(attacker.knight2.pieceImage, attacker.knight2.pieceStructure.x, attacker.knight2.pieceStructure.y, attacker.knight2.pieceStructure.width, attacker.knight2.pieceStructure.height);
+
+        // draw all the images of the pieces including the background
 
         game.batch.end();
         highlightPiece(currSelectedPiece);
@@ -215,235 +118,34 @@ public class GameScreen implements Screen,InputProcessor {
 
     }
 
-    public Piece findPiece(int mouseX,int mouseY){
-        for (Piece currPiece: Piece.allPieces) {
-            if (currPiece.pos.x == mouseX && (currPiece.pos.y) == (4-mouseY)){
-                if(attacker && !defender && currPiece.getClass() != King.class) {
-                    currSelectedPiece = currPiece;
-                    return currPiece;
-                }
-                else if(defender && !attacker && currPiece.getClass()==King.class){
-                    currSelectedPiece = currPiece;
-                    return currPiece;
-                }
-            }
-        }
-        return null;
 
-    }
 
     public Position findPos(int mouseX,int mouseY){
         for (Position pos: currSelectedPiece.validMoves) {
             if ((pos!=null) && pos.x == mouseX && (pos.y) == (4-mouseY)){
-                currMovePosition = pos;
                 return pos;
             }
         }
         return null;
     }
 
-    public void getValidMoves(Piece p){
-        if (p.getClass() == King.class){
-            p.numValidMoves = 0;
-            // resetting all valid moves
-            for (int i =-1;i<=1;i++){
-                for(int j=-1;j<=1;j++){
-                    if(i==0 && j==0){
-                        continue;
-                    }
-                    if(testValid(p,i,j)){
-                        p.validMoves[p.numValidMoves]= new Position(p.pos.x+i,p.pos.y+j);
-                        p.numValidMoves++;
-                    }
-                }
-            }
-        }
-        else if (p.getClass() == Knight.class){
-            p.numValidMoves = 0;
-            // resetting all valid moves
-            for (int i =-2;i<=2;i++){
-                for(int j=-2;j<=2;j++){
-                    if(i==0 || j==0){
-                        continue;
-                    }
-                    else if ((i==j) || (i==-j)) {
-                        continue;
-                    }
-                    else if (testValid(p, i, j)) {
-                            p.validMoves[p.numValidMoves] = new Position(p.pos.x + i, p.pos.y + j);
-                            p.numValidMoves++;
-                    }
-                }
-            }
-        }
-        else if (p.getClass() == Bishop.class){
-            p.numValidMoves = 0;
-            // resetting all valid moves
-            boolean flag1=true;// check quadrant 1
-            boolean flag2=true;// check quadrant 2
-            boolean flag3=true; // check quadrant 3
-            boolean flag4=true;// check quadrant 4
-            for (int i =1;i<=4;i++){
-                for(int j=1;j<=4;j++){
-                    if(i==0 || j==0){
-                        continue;
-                    }
-                    if(i==j){
-                        if(flag1) {
-                            if (testValid(p, i, j)) {
-                                p.validMoves[p.numValidMoves] = new Position(p.pos.x + i, p.pos.y + j);
-                                p.numValidMoves++;
-                            } else {
-                                flag1=false;
-                            }
-                        }
-                        if(flag2) {
-                            if (testValid(p, 0-i, j)) {
-                                p.validMoves[p.numValidMoves] = new Position(p.pos.x -i, p.pos.y + j);
-                                p.numValidMoves++;
-                            } else {
-                                flag2=false;
-                            }
-                        }
-                        if(flag3) {
-                            if (testValid(p, i, 0-j)) {
-                                p.validMoves[p.numValidMoves] = new Position(p.pos.x + i, p.pos.y - j);
-                                p.numValidMoves++;
-                            } else {
-                                flag3=false;
-                            }
-                        }
-                        if(flag4) {
-                            if (testValid(p, 0-i, 0-j)) {
-                                p.validMoves[p.numValidMoves] = new Position(p.pos.x - i, p.pos.y - j);
-                                p.numValidMoves++;
-                            } else {
-                                flag4=false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
-
-
-
-    public void makeAttackerAIDecision(){
-
-        Piece pieceToMove = null;
-        Position posToMove = new Position(5,5);
-        Position currCheckPos = new Position(5,5);
-
-        for (Piece p: Piece.allPieces){
-            getValidMoves(p); // get all valid moves before making a move
-        }
-        int minKingMoves = 10;
-        for (Piece currPiece: Piece.allPieces){
-            if(currPiece.getClass() == King.class){
-                continue;
-            }
-            else{
-                for(int i=0;i<currPiece.numValidMoves;i++){
-                    currCheckPos.x = currPiece.validMoves[i].x;
-                    currCheckPos.y = currPiece.validMoves[i].y;
-                    int oldX = currPiece.pos.x;
-                    int oldY = currPiece.pos.y;
-                    currPiece.pos.x = currCheckPos.x;
-                    currPiece.pos.y = currCheckPos.y;
-                    getValidMoves(currPiece);
-                    getValidMoves(king);
-                    int numValid = king.numValidMoves;
-                    if(numValid <= minKingMoves){
-                        pieceToMove = currPiece;
-                        posToMove.x = currCheckPos.x;
-                        posToMove.y = currCheckPos.y;
-                        minKingMoves = numValid;
-                    }
-                    currPiece.pos.x = oldX;
-                    currPiece.pos.y = oldY;
-                    getValidMoves(currPiece);
-                }
-            }
-        }
-        pieceToMove.pos.x = posToMove.x;
-        pieceToMove.pos.y = posToMove.y;
-        pieceToMove.changePiecePos();
-    }
-
-    public void inferCheckMate(King k) throws InterruptedException {
-        if (k.numValidMoves==0){
-            k.checkMate=true;
+    public void inferCheckMate() throws InterruptedException {
+        if (defender.king.getNumValidMoves()==0){
             TimeUnit.SECONDS.sleep(2);
-            game.setScreen(new GameOver(game,king.points));
+            game.setScreen(new GameOver(game,defender.getPoints()));
         }
-        if (k.uncheckedMovesLeft == 0){
-            k.checkMate = true;
+        if (defender.king.getUncheckedMoves() == 0){
             TimeUnit.SECONDS.sleep(2);
             game.setScreen(new GameOver(game,50));
         }
     }
-    public boolean testValid(Piece p,int i,int j){
-        if(i==0 && j==0){
-            return false;
-        }
-        if((p.pos.x+i) <0 || (p.pos.x+i)>5)
-            return false;
-        else if(p.pos.y+j<0 || (p.pos.y+j) >4)
-            return false;
-        else {
-            for (Piece currPiece: Piece.allPieces) {
-                if (currPiece.pos.x == (p.pos.x+i) && (currPiece.pos.y) == (p.pos.y+j)){
-                    if(currPiece.getClass() == King.class && p.getClass() != King.class){
-                        king.firstCheck= true;// test for check condition
-                    }
-                    return false;
-                }
-            }
-        }
-        if(p.getClass() == King.class){
-            for (Piece currPiece: Piece.allPieces) {
-                if (currPiece.getClass() == King.class) {
-                    continue;
-                }
-                else{
-                    for (int k = 0; k < currPiece.numValidMoves; k++) {
-                        if(currPiece.validMoves[k].x ==  (p.pos.x+i) && currPiece.validMoves[k].y == (p.pos.y+j)){
-                            return false;
-                        }
-                        if(currPiece.getClass() == Bishop.class){ // extra test for bishop check
-                            for(int q = -4;q<4;q++){
-                                for (int r=-4;r<4;r++){
-                                    if(q==r || q== (0-r)){
-                                        if((currPiece.pos.x+q)== (p.pos.x+i) && (currPiece.pos.y+r) == (p.pos.y+j)){
-                                            return false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-        if(p.getClass() == Knight.class){
-            return true;
-        }
-        if(p.getClass() == Bishop.class){
-            return true;
-        }
-        return false;
-    }
-
-
 
 
     public void highlightPiece(Piece p){
         if (p!=null) {
             game.batch.begin();
-            game.batch.draw(redBorderImage, p.pos.x * 150, p.pos.y * 150, 150, 150);
+            game.batch.draw(Piece.redBorderImage, p.pos.x * 150, p.pos.y * 150, 150, 150);
             game.batch.end();
         }
     }
@@ -452,7 +154,7 @@ public class GameScreen implements Screen,InputProcessor {
         if (p!=null) {
             game.batch.begin();
             for (int i = 0; i < p.numValidMoves; i++) {
-                game.batch.draw(greenBorderImage, p.validMoves[i].x * 150, p.validMoves[i].y * 150, 150, 150);
+                game.batch.draw(Piece.greenBorderImage, p.validMoves[i].x * 150, p.validMoves[i].y * 150, 150, 150);
             }
             game.batch.end();
         }
@@ -463,7 +165,7 @@ public class GameScreen implements Screen,InputProcessor {
         SQUAREHEIGHT = (height)/5;
         SQUAREWIDTH = (width)/8;
         for (Piece currPiece: Piece.allPieces) {
-            currPiece.changePiecePos();
+            currPiece.changePieceViewPos();
         }
     }
 
@@ -486,9 +188,11 @@ public class GameScreen implements Screen,InputProcessor {
     @Override
     public void dispose() {
         backgroundImage.dispose();
-        knightImage.dispose();
-        bishopImage.dispose();
-        kingImage.dispose();
+        Attacker.bishopTexture.dispose();
+        Attacker.knightTexture.dispose();
+        Defender.kingTexture.dispose();
+        Piece.greenBorderImage.dispose();
+        Piece.redBorderImage.dispose();
     }
     @Override public boolean mouseMoved (int screenX, int screenY) {
         // we can also handle mouse movement without anything pressed
@@ -500,53 +204,67 @@ public class GameScreen implements Screen,InputProcessor {
         // ignore if its not left mouse button or first touch pointer
             mouseX = Gdx.input.getX() / SQUAREWIDTH;
             mouseY = Gdx.input.getY() / SQUAREHEIGHT ;
-        if(attacker && !defender) {
-            makeAttackerAIDecision();
-            attacker = false;
-            defender = true;
+        if(attacker.isActive()) {
+            // used to call attacker AI
+            attacker.makeAttackerAIDecision(defender);
+            attacker.toggleActive();
+            defender.toggleActive();
             for(Piece p:Piece.allPieces){
-                getValidMoves(p);
+                p.getValidMoves(defender.king);
             }
             try{
-                inferCheckMate(king);
+                inferCheckMate();
             }
             catch(Exception e){
                 System.out.println(e);
             }
+
         }
+ // used to activate defender AI
+//        else if(defender.isActive()){
+//            defender.makeDefenderAIDecision();
+//            attacker.toggleActive();
+//            defender.toggleActive();
+//
+//        }
         else if (currSelectedPiece==null) {
-            currMovePiece = findPiece(mouseX, mouseY);
+            currSelectedPiece = Piece.findPiece(mouseX, mouseY,attacker,defender);
+            currMovePiece= currSelectedPiece;
+            for(Piece p: Piece.allPieces){
+                p.getValidMoves(defender.king);
+            }
             if (currMovePiece != null) {
-                getValidMoves(currMovePiece);
+                currMovePiece.getValidMoves(defender.king);
             }
 
         }
         else{
             currMovePosition = findPos(mouseX,mouseY);
-            if (currMovePosition!=null && defender) {
+            if (currMovePosition!=null && defender.isActive()) {
                 boolean valid = false;
-                getValidMoves(king);
-                for (int i = 0; i < king.numValidMoves; i++) {
-                    if (currMovePosition.x == king.validMoves[i].x && currMovePosition.y == king.validMoves[i].y) {
+                defender.king.getValidMoves(defender.king);
+                for (int i = 0; i < defender.king.numValidMoves; i++) {
+                    if (defender.king.validMoves[i].equals(currMovePosition)) {
                         valid = true;
                     }
                 }
                 if (valid) {
-                    currSelectedPiece.pos.x = currMovePosition.x;
-                    currSelectedPiece.pos.y = currMovePosition.y;
-                    currSelectedPiece.changePiecePos();
+                    currSelectedPiece.changePiecePos(currMovePosition);
+                    currSelectedPiece.changePieceViewPos();
+
                     for (Piece p : Piece.allPieces) {
-                        getValidMoves(p);
+                        p.checkStatus = false;
+                        p.getValidMoves(defender.king);
                     }
-                    if (king.firstCheck) {
-                        king.points++;
+                    System.out.println(defender.king.firstCheck);
+                    if (defender.king.firstCheck) {
+                        defender.incrementPoints();
                     }
                     else {
-                        king.uncheckedMovesLeft--;
+                        defender.king.decrementUncheckedMoves();
                     }
-                    attacker = true;
-                    defender = false;
-
+                    attacker.toggleActive();
+                    defender.toggleActive();
                 }
                 currSelectedPiece = null;
                 currMovePosition = null;
