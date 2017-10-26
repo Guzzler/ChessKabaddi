@@ -5,12 +5,12 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
-public class MainMenu implements Screen {
+public class SelectMenu implements Screen {
     final ChessKabaddi game;
 
     OrthographicCamera camera;
 
-    public MainMenu(final ChessKabaddi game){
+    public SelectMenu(final ChessKabaddi game){
         this.game = game;
         camera = new OrthographicCamera();
         camera.setToOrtho(false,1200,750);
@@ -26,15 +26,9 @@ public class MainMenu implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Welcome to Chess Kabaddi!!! ", 500, 700);
-        game.font.draw(game.batch, "The game consists of two players playing in turns, an Attacker and a Defender.", 25, 600);
-        game.font.draw(game.batch, "Starting with the Attacker(Black) who has 2 knights and one bishop at its disposal, the objective of the attacker is to checkmate/stalemate the Defender's King as soon", 25, 500);
-        game.font.draw(game.batch, "as possible after its first check.", 25, 485);
-        game.font.draw(game.batch, "The Attacker has a maximum of 10 moves to do its first Check, else the Defender gains the maximum of 50 points.", 25, 400);
-        game.font.draw(game.batch, "The Defender(White) has one King at its disposal and must try to evade for as long as possible .", 25, 300);
-        game.font.draw(game.batch, "Special Rules: No piece may be killed/taken/removed from the board.", 25, 200);
-        game.font.draw(game.batch, "Tap anywhere to begin!", 500, 100);
-        game.batch.end();
+        game.font.draw(game.batch, "SELECT TYPE OF GAME!!! ", 500, 700);
+        game.font.draw(game.batch, ".", 25, 600);
+
 
         if (Gdx.input.isTouched()) {
             GameScreen mainGame = new GameScreen(game);
@@ -72,3 +66,4 @@ public class MainMenu implements Screen {
     }
 
 }
+
