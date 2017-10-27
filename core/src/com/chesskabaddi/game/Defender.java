@@ -68,8 +68,8 @@ public class Defender {
                 System.out.println("posTomovex: "+posToMove.y);
             }
             this.king.changePiecePos(oldPos);
-            this.king.getValidMoves(this.king);
             getAttackerPiecesMoves();
+            this.king.getValidMoves(this.king);
         }
 
         this.king.changePiecePos(posToMove);
