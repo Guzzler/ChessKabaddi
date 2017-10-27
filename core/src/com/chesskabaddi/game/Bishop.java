@@ -15,6 +15,9 @@ public class Bishop extends Piece {
     public void getValidMoves(King king){
         this.numValidMoves = 0;
         // resetting all valid moves
+        for(int i=0;i<9;i++){
+            this.validMoves[i]=null;
+        }
         boolean flag1=true;// check quadrant 1
         boolean flag2=true;// check quadrant 2
         boolean flag3=true; // check quadrant 3

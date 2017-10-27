@@ -14,8 +14,7 @@ public class SelectMenu implements Screen,InputProcessor {
     final ChessKabaddi game;
     boolean singlePlayer;
     OrthographicCamera camera;
-    Texture singlePlayerImage;
-    Texture multiplayerImage;
+    Texture playerSelectImage;
     int currHeight;
     int currWidth;
 
@@ -23,8 +22,7 @@ public class SelectMenu implements Screen,InputProcessor {
         this.game = game;
         camera = new OrthographicCamera();
         camera.setToOrtho(false,1200,750);
-        singlePlayerImage = new Texture(Gdx.files.internal("singleplayer.jpg"));
-        multiplayerImage = new Texture(Gdx.files.internal("multiplayer.jpg"));
+        playerSelectImage = new Texture(Gdx.files.internal("playerSelectScreen.jpg"));
         currHeight =750;
         currWidth = 1200;
     }
@@ -38,8 +36,7 @@ public class SelectMenu implements Screen,InputProcessor {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.batch.draw(singlePlayerImage, 0, 0, 1200, 375);
-        game.batch.draw(multiplayerImage, 0, 375, 1200, 375);
+        game.batch.draw(playerSelectImage, 0, 0, 1200, 750);
         game.batch.end();
 
 

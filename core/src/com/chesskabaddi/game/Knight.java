@@ -18,6 +18,9 @@ public class Knight extends Piece {
     public void getValidMoves(King king){
         this.numValidMoves = 0;
         // resetting all valid moves
+        for(int i=0;i<9;i++){
+            this.validMoves[i]=null;
+        }
         for (int i =-2;i<=2;i++){
             for(int j=-2;j<=2;j++){
                 if(i==0 || j==0){

@@ -239,11 +239,18 @@ public class GameScreen implements Screen,InputProcessor {
 
         else if(defender.isActive() && !multiplayer && sideSelect){
             defender.makeDefenderAIDecision();
+            System.out.println("abcd");
             attacker.toggleActive();
             defender.toggleActive();
             for(Piece p:Piece.allPieces){
                 p.checkStatus = false;
                 p.getValidMoves(defender.king);
+            }
+            if (defender.king.firstCheck) {
+                defender.incrementPoints();
+            }
+            else {
+                defender.king.decrementUncheckedMoves();
             }
         }
         else if (currSelectedPiece==null) {
