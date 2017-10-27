@@ -1,28 +1,26 @@
 package com.chesskabaddi.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Rectangle;
-import net.dermetfan.gdx.physics.box2d.PositionController;
 
-public class SelectMenu implements Screen,InputProcessor {
+
+public class SinglePlayerSelect implements Screen,InputProcessor {
     final ChessKabaddi game;
-    boolean singlePlayer;
+    boolean selectSides;
     OrthographicCamera camera;
-    Texture playerSelectImage;
+    Texture singlePlayerSelectImage;
     int currHeight;
     int currWidth;
 
-    public SelectMenu(final ChessKabaddi game){
+    public SinglePlayerSelect(final ChessKabaddi game){
         this.game = game;
         camera = new OrthographicCamera();
         camera.setToOrtho(false,1200,750);
-        playerSelectImage = new Texture(Gdx.files.internal("playerSelectScreen.jpg"));
+        singlePlayerSelectImage = new Texture(Gdx.files.internal("singlePlayerSelect.png"));
         currHeight =750;
         currWidth = 1200;
     }
@@ -36,7 +34,7 @@ public class SelectMenu implements Screen,InputProcessor {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.batch.draw(playerSelectImage, 0, 0, 1200, 750);
+        game.batch.draw(singlePlayerSelectImage, 0, 0, 1200, 750);
         game.batch.end();
 
 
@@ -87,18 +85,17 @@ public class SelectMenu implements Screen,InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         int mouseY = Gdx.input.getY();
+        System.out.println(screenY+mouseY);
         if(mouseY<(currHeight/2)){
-            GameScreen mainGame = new GameScreen(game,true,false);
+            GameScreen mainGame = new GameScreen(game,false,false);
             game.setScreen(mainGame);
             Gdx.input.setInputProcessor(mainGame);
             dispose();
-
         }
         else if(mouseY<currHeight){
-
-            SinglePlayerSelect singleGame = new SinglePlayerSelect(game);
-            game.setScreen(singleGame);
-            Gdx.input.setInputProcessor(singleGame);
+            GameScreen mainGame = new GameScreen(game,false,true);
+            game.setScreen(mainGame);
+            Gdx.input.setInputProcessor(mainGame);
             dispose();
         }
         return false;

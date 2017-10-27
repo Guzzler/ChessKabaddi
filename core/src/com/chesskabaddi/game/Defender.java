@@ -49,9 +49,14 @@ public class Defender {
         Position oldPos  = new Position(5,5);
         getAttackerPiecesMoves();
         this.king.getValidMoves(this.king);
-        int maxKingMoves =0;
-        for (int i = 0;i<this.king.getNumValidMoves();i++){
+        int valMoves = this.king.getNumValidMoves();
+        System.out.println("valid Moves:"+valMoves);
+        int maxKingMoves =-1;
+        for (int i = 0;i<valMoves;i++){
+            System.out.println("val moves i:"+i);
             currCheckPos = this.king.validMoves[i];
+            System.out.println("currCheckposx: "+currCheckPos.x);
+            System.out.println("currCheckposy: "+currCheckPos.y);
             oldPos.changePos(this.king.pos);
             this.king.changePiecePos(currCheckPos);
             getAttackerPiecesMoves();
@@ -59,8 +64,11 @@ public class Defender {
             if(this.king.getNumValidMoves()>maxKingMoves){
                 posToMove.changePos(this.king.pos);
                 maxKingMoves = this.king.getNumValidMoves();
+                System.out.println("posTomovex: "+posToMove.x);
+                System.out.println("posTomovex: "+posToMove.y);
             }
             this.king.changePiecePos(oldPos);
+            this.king.getValidMoves(this.king);
             getAttackerPiecesMoves();
         }
 

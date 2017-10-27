@@ -17,7 +17,8 @@ public class GameScreen implements Screen,InputProcessor {
     private static int SQUAREWIDTH = 150;
     private static int SQUAREHEIGHT = 150;
     int mouseX,mouseY;
-    boolean multiplayer = false;
+    boolean multiplayer;
+    boolean sideSelect; // true for attacker, false for defender
     Attacker attacker;
     Defender defender;
     Piece currSelectedPiece;
@@ -28,12 +29,13 @@ public class GameScreen implements Screen,InputProcessor {
     Position currMovePosition;
 
 
-    public GameScreen(final ChessKabaddi game) {
+    public GameScreen(final ChessKabaddi game,boolean multSelect, boolean typeSelect) {
         this.game = game;
 
         // load all images required
 
-
+        multiplayer = multSelect;
+        sideSelect = typeSelect;
         backgroundImage = new Texture(Gdx.files.internal("background.png"));
 
 
@@ -97,11 +99,24 @@ public class GameScreen implements Screen,InputProcessor {
         if(!defender.king.firstCheck) { // checks whether the king has been checked once before
             game.font.draw(game.batch, "Moves Left for first Check: " + defender.king.getUncheckedMoves(), 950, 450);
         }
-        if(attacker.isActive()){ // if the Attacker is to move
+
+        if(defender.isActive() && !multiplayer && sideSelect){ // if the Defender AI is to move
+            game.font.draw(game.batch, "Click to see the Defender AI play !", 950, 300);
+        }
+        else if(attacker.isActive() && !multiplayer && !sideSelect){ // if the Attacker AI is to move
             game.font.draw(game.batch, "Click to see the Attacker AI play !", 950, 300);
         }
-        else if(defender.isActive()){ // if the defender is to move
+        else if(defender.isActive() &&!multiplayer && !sideSelect){ // Player move if single player defending
             game.font.draw(game.batch, "Make your move ! ", 950, 300);
+        }
+        else if(attacker.isActive() &&!multiplayer && sideSelect){ // Player move if single player attacking
+            game.font.draw(game.batch, "Make your move ! ", 950, 300);
+        }
+        else if(defender.isActive() && multiplayer){ // Player 1 move
+            game.font.draw(game.batch, "Make your move Player 1(Defender) ! ", 950, 300);
+        }
+        else if(attacker.isActive() && multiplayer){ // Player 2 move
+            game.font.draw(game.batch, "Make your move Player 2(Attacker) ! ", 950, 300);
         }
 
         game.batch.draw(backgroundImage, background.x, background.y, background.width, background.height);
@@ -121,6 +136,7 @@ public class GameScreen implements Screen,InputProcessor {
 
 
     public Position findPos(int mouseX,int mouseY){
+        currSelectedPiece.getValidMoves(defender.king);
         for (Position pos: currSelectedPiece.validMoves) {
             if ((pos!=null) && pos.x == mouseX && (pos.y) == (4-mouseY)){
                 return pos;
@@ -204,7 +220,7 @@ public class GameScreen implements Screen,InputProcessor {
         // ignore if its not left mouse button or first touch pointer
             mouseX = Gdx.input.getX() / SQUAREWIDTH;
             mouseY = Gdx.input.getY() / SQUAREHEIGHT ;
-        if(attacker.isActive()) {
+        if(attacker.isActive() && !multiplayer && !sideSelect) {
             // used to call attacker AI
             attacker.makeAttackerAIDecision(defender);
             attacker.toggleActive();
@@ -220,13 +236,23 @@ public class GameScreen implements Screen,InputProcessor {
             }
 
         }
- // used to activate defender AI
-//        else if(defender.isActive()){
-//            defender.makeDefenderAIDecision();
-//            attacker.toggleActive();
-//            defender.toggleActive();
-//
-//        }
+
+        else if(defender.isActive() && !multiplayer && sideSelect){
+            defender.makeDefenderAIDecision();
+            System.out.println("abcd");
+            attacker.toggleActive();
+            defender.toggleActive();
+            for(Piece p:Piece.allPieces){
+                p.checkStatus = false;
+                p.getValidMoves(defender.king);
+            }
+            if (defender.king.firstCheck) {
+                defender.incrementPoints();
+            }
+            else {
+                defender.king.decrementUncheckedMoves();
+            }
+        }
         else if (currSelectedPiece==null) {
             currSelectedPiece = Piece.findPiece(mouseX, mouseY,attacker,defender);
             currMovePiece= currSelectedPiece;
@@ -241,35 +267,38 @@ public class GameScreen implements Screen,InputProcessor {
         else{
             currMovePosition = findPos(mouseX,mouseY);
             if (currMovePosition!=null && defender.isActive()) {
-                boolean valid = false;
-                defender.king.getValidMoves(defender.king);
-                for (int i = 0; i < defender.king.numValidMoves; i++) {
-                    if (defender.king.validMoves[i].equals(currMovePosition)) {
-                        valid = true;
-                    }
+                currSelectedPiece.changePiecePos(currMovePosition);
+                currSelectedPiece.changePieceViewPos();
+                for (Piece p : Piece.allPieces) {
+                    p.checkStatus = false;
+                    p.getValidMoves(defender.king);
                 }
-                if (valid) {
-                    currSelectedPiece.changePiecePos(currMovePosition);
-                    currSelectedPiece.changePieceViewPos();
-
-                    for (Piece p : Piece.allPieces) {
-                        p.checkStatus = false;
-                        p.getValidMoves(defender.king);
-                    }
-                    System.out.println(defender.king.firstCheck);
-                    if (defender.king.firstCheck) {
-                        defender.incrementPoints();
-                    }
-                    else {
-                        defender.king.decrementUncheckedMoves();
-                    }
-                    attacker.toggleActive();
-                    defender.toggleActive();
+                if (defender.king.firstCheck) {
+                    defender.incrementPoints();
                 }
-                currSelectedPiece = null;
-                currMovePosition = null;
-
+                else {
+                    defender.king.decrementUncheckedMoves();
+                }
+                attacker.toggleActive();
+                defender.toggleActive();
             }
+            else if (currMovePosition!=null && attacker.isActive()) {
+                currSelectedPiece.changePiecePos(currMovePosition);
+                currSelectedPiece.changePieceViewPos();
+                for (Piece p : Piece.allPieces) {
+                    p.getValidMoves(defender.king);
+                }
+                try{
+                    inferCheckMate();
+                }
+                catch(Exception e){
+                    System.out.println(e);
+                }
+                attacker.toggleActive();
+                defender.toggleActive();
+            }
+            currSelectedPiece = null;
+            currMovePosition = null;
         }
         return true;
     }

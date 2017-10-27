@@ -36,12 +36,16 @@ public class King extends Piece{
     public void getValidMoves(King king) {
         this.numValidMoves = 0;
         // resetting all valid moves
+        for(int i=0;i<9;i++){
+            this.validMoves[i]=null;
+        }
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if (i == 0 && j == 0) {
                     continue;
                 }
                 if (testValid(i,j)) {
+                    System.out.println("i: "+i+" j: "+j);
                     this.validMoves[this.numValidMoves] = new Position(this.pos.x + i, this.pos.y + j);
                     this.numValidMoves++;
                 }

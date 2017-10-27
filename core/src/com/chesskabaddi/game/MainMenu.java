@@ -31,16 +31,15 @@ public class MainMenu implements Screen {
         game.font.draw(game.batch, "Starting with the Attacker(Black) who has 2 knights and one bishop at its disposal, the objective of the attacker is to checkmate/stalemate the Defender's King as soon", 25, 500);
         game.font.draw(game.batch, "as possible after its first check.", 25, 485);
         game.font.draw(game.batch, "The Attacker has a maximum of 10 moves to do its first Check, else the Defender gains the maximum of 50 points.", 25, 400);
-        game.font.draw(game.batch, "The Defender(White) has one King at its disposal and must try to evade for as long as possible .", 25, 300);
+        game.font.draw(game.batch, "The Defender(White) has one King at its disposal and must try to evade for as long as possible. One point is gained for every move made after the first check.", 25, 300);
         game.font.draw(game.batch, "Special Rules: No piece may be killed/taken/removed from the board.", 25, 200);
         game.font.draw(game.batch, "Tap anywhere to begin!", 500, 100);
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
-            GameScreen mainGame = new GameScreen(game);
-            game.setScreen(mainGame);
-            Gdx.input.setInputProcessor(mainGame);
-            dispose();
+            SelectMenu selectGame = new SelectMenu(game);
+            game.setScreen(selectGame);
+            Gdx.input.setInputProcessor(selectGame);
         }
         dispose();
 
