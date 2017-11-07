@@ -8,8 +8,8 @@ public class Knight extends Piece {
     boolean check;
     boolean checkMate;
 
-    public Knight(Position pos, Texture pieceTexture) {
-        super(pos, pieceTexture);
+    public Knight(Position pos) {
+        super(pos);
         check = false;
         checkMate = false;
     }

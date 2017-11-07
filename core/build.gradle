@@ -1,8 +1,7 @@
 apply plugin: "java"
 apply plugin: "info.solidsoft.pitest"
-sourceCompatibility = 1.6
+sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-
 sourceSets.main.java.srcDirs = [ "src/" ]
 
 
@@ -10,14 +9,20 @@ buildscript {
     repositories {
         mavenCentral()
         //Needed only for SNAPSHOT versions
-        //maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
     }
     dependencies {
         classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.11'
     }
 }
 
-gradle pitest
+
+
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    compile 'junit:junit:4.12'
+}
 
 project(":core") {
     dependencies {
@@ -25,19 +30,27 @@ project(":core") {
     }
 }
 
-project(":android") {
-    dependencies {
-        compile "com.badlogicgames.gdx:gdx-ai:1.8.0"
-    }
-}
 
-project(":html") {
-    dependencies {
-        compile "com.badlogicgames.gdx:gdx-ai:1.8.0:sources"
-    }
-}
+//project(":android") {
+//    dependencies {
+//        compile "com.badlogicgames.gdx:gdx-ai:1.8.0"
+//    }
+//}
 
-eclipse.project {
-    name = appName + "-core"
-}
+//project(":html") {
+//    dependencies {
+//        compile "com.badlogicgames.gdx:gdx-ai:1.8.0:sources"
+//    }
+//}
 
+//eclipse.project {
+//    name = appName + "-core"
+//}
+
+pitest {
+    targetClasses = ['com.chesskabaddi.game.*']
+    pitestVersion = "1.1.5"
+    threads = 4
+    outputFormats = ['XML', 'HTML']
+    excludedMethods = ['equals', 'hashCode']
+}

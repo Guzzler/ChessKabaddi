@@ -7,8 +7,8 @@ public class King extends Piece{
     private boolean checked;
     private int uncheckedMovesLeft;
 
-    public King(Position pos,Texture pieceTexture){
-        super(pos,pieceTexture);
+    public King(Position pos){
+        super(pos);
         checked = false;
         firstCheck = false;
         uncheckedMovesLeft =10;
@@ -60,20 +60,21 @@ public class King extends Piece{
             return false;
         }
         for (Piece currPiece: Piece.allPieces) {
-            if (currPiece.getClass() == King.class) {
-                continue;
-            }
-            else{
-                for (int k = 0; k < currPiece.numValidMoves; k++) {
-                    if(currPiece.validMoves[k].x ==  (this.pos.x+i) && currPiece.validMoves[k].y == (this.pos.y+j)){
-                        return false;
-                    }
-                    if(currPiece.getClass() == Bishop.class && currPiece.checkStatus == true ){ // extra test for bishop check
-                        for(int q = -4;q<4;q++){
-                            for (int r=-4;r<4;r++){
-                                if(q==r || q== (0-r)){
-                                    if((currPiece.pos.x+q)== (this.pos.x+i) && (currPiece.pos.y+r) == (this.pos.y+j)){
-                                        return false;
+            if (currPiece != null) {
+                if (currPiece.getClass() == King.class) {
+                    continue;
+                } else {
+                    for (int k = 0; k < currPiece.numValidMoves; k++) {
+                        if (currPiece.validMoves[k].x == (this.pos.x + i) && currPiece.validMoves[k].y == (this.pos.y + j)) {
+                            return false;
+                        }
+                        if (currPiece.getClass() == Bishop.class && currPiece.checkStatus == true) { // extra test for bishop check
+                            for (int q = -4; q < 4; q++) {
+                                for (int r = -4; r < 4; r++) {
+                                    if (q == r || q == (0 - r)) {
+                                        if ((currPiece.pos.x + q) == (this.pos.x + i) && (currPiece.pos.y + r) == (this.pos.y + j)) {
+                                            return false;
+                                        }
                                     }
                                 }
                             }

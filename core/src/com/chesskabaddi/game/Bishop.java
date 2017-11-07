@@ -6,8 +6,8 @@ public class Bishop extends Piece {
 
     boolean checkStatus;
 
-    public Bishop(Position pos, Texture pieceTexture) {
-        super(pos, pieceTexture);
+    public Bishop(Position pos) {
+        super(pos);
         checkStatus = false;
     }
 

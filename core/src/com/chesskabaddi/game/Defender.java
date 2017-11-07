@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 public class Defender {
-    static Texture kingTexture =  new Texture(Gdx.files.internal("king.png"));
     King king;
     private int points;
     private boolean active;
@@ -35,7 +34,7 @@ public class Defender {
     }
 
     public void initKing(Position pos){
-        king = new King(pos,kingTexture);
+        king = new King(pos);
     }
 
     public void incrementPoints(){

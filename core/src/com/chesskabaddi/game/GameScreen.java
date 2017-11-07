@@ -13,7 +13,11 @@ import java.util.concurrent.TimeUnit;
 
 public class GameScreen implements Screen,InputProcessor {
     final ChessKabaddi game;
-
+    static Texture kingTexture =  new Texture(Gdx.files.internal("king.png"));
+    static Texture knightTexture =  new Texture(Gdx.files.internal("knight.png"));
+    static Texture bishopTexture = new Texture(Gdx.files.internal("bishop.png"));
+    static Texture greenBorderImage = new Texture(Gdx.files.internal("green-border.png"));
+    static Texture redBorderImage = new Texture(Gdx.files.internal("red-border.png"));
     private static int SQUAREWIDTH = 150;
     private static int SQUAREHEIGHT = 150;
     int mouseX,mouseY;
@@ -120,10 +124,10 @@ public class GameScreen implements Screen,InputProcessor {
         }
 
         game.batch.draw(backgroundImage, background.x, background.y, background.width, background.height);
-        game.batch.draw(defender.king.pieceImage, defender.king.pieceStructure.x, defender.king.pieceStructure.y, defender.king.pieceStructure.width, defender.king.pieceStructure.height);
-        game.batch.draw(attacker.bishop.pieceImage, attacker.bishop.pieceStructure.x, attacker.bishop.pieceStructure.y, attacker.bishop.pieceStructure.width, attacker.bishop.pieceStructure.height);
-        game.batch.draw(attacker.knight1.pieceImage, attacker.knight1.pieceStructure.x, attacker.knight1.pieceStructure.y, attacker.knight1.pieceStructure.width, attacker.knight1.pieceStructure.height);
-        game.batch.draw(attacker.knight2.pieceImage, attacker.knight2.pieceStructure.x, attacker.knight2.pieceStructure.y, attacker.knight2.pieceStructure.width, attacker.knight2.pieceStructure.height);
+        game.batch.draw(kingTexture, defender.king.pieceStructure.x, defender.king.pieceStructure.y, defender.king.pieceStructure.width, defender.king.pieceStructure.height);
+        game.batch.draw(bishopTexture, attacker.bishop.pieceStructure.x, attacker.bishop.pieceStructure.y, attacker.bishop.pieceStructure.width, attacker.bishop.pieceStructure.height);
+        game.batch.draw(knightTexture, attacker.knight1.pieceStructure.x, attacker.knight1.pieceStructure.y, attacker.knight1.pieceStructure.width, attacker.knight1.pieceStructure.height);
+        game.batch.draw(knightTexture, attacker.knight2.pieceStructure.x, attacker.knight2.pieceStructure.y, attacker.knight2.pieceStructure.width, attacker.knight2.pieceStructure.height);
 
         // draw all the images of the pieces including the background
 
@@ -161,7 +165,7 @@ public class GameScreen implements Screen,InputProcessor {
     public void highlightPiece(Piece p){
         if (p!=null) {
             game.batch.begin();
-            game.batch.draw(Piece.redBorderImage, p.pos.x * 150, p.pos.y * 150, 150, 150);
+            game.batch.draw(redBorderImage, p.pos.x * 150, p.pos.y * 150, 150, 150);
             game.batch.end();
         }
     }
@@ -170,7 +174,7 @@ public class GameScreen implements Screen,InputProcessor {
         if (p!=null) {
             game.batch.begin();
             for (int i = 0; i < p.numValidMoves; i++) {
-                game.batch.draw(Piece.greenBorderImage, p.validMoves[i].x * 150, p.validMoves[i].y * 150, 150, 150);
+                game.batch.draw(greenBorderImage, p.validMoves[i].x * 150, p.validMoves[i].y * 150, 150, 150);
             }
             game.batch.end();
         }
@@ -204,11 +208,11 @@ public class GameScreen implements Screen,InputProcessor {
     @Override
     public void dispose() {
         backgroundImage.dispose();
-        Attacker.bishopTexture.dispose();
-        Attacker.knightTexture.dispose();
-        Defender.kingTexture.dispose();
-        Piece.greenBorderImage.dispose();
-        Piece.redBorderImage.dispose();
+        bishopTexture.dispose();
+        knightTexture.dispose();
+        kingTexture.dispose();
+        greenBorderImage.dispose();
+        redBorderImage.dispose();
     }
     @Override public boolean mouseMoved (int screenX, int screenY) {
         // we can also handle mouse movement without anything pressed

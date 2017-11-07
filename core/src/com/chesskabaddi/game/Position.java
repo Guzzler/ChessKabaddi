@@ -15,6 +15,9 @@ public class Position{
         this.x = p.x;
         this.y = p.y;
     }
+    public static int add(int x,int y){
+        return (x+y);
+    }
 
     @Override
     public boolean equals(Object ob) {

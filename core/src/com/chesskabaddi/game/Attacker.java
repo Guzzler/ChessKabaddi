@@ -4,8 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 public class Attacker {
-    static Texture knightTexture =  new Texture(Gdx.files.internal("knight.png"));
-    static Texture bishopTexture = new Texture(Gdx.files.internal("bishop.png"));
     Bishop bishop;
     Knight knight1;
     Knight knight2;
@@ -34,14 +32,14 @@ public class Attacker {
 
     public void initKnight(int index, Position pos){
         if(index == 1){
-            knight1 = new Knight(pos,knightTexture);
+            knight1 = new Knight(pos);
         }
         else if(index ==2){
-            knight2 = new Knight(pos,knightTexture);
+            knight2 = new Knight(pos);
         }
     }
     public void initBishop(Position pos){
-        bishop = new Bishop(pos,bishopTexture);
+        bishop = new Bishop(pos);
     }
     public void makeAttackerAIDecision(Defender opponent){
 
