@@ -17,15 +17,17 @@ public class King extends Piece{
     public void updateCheckStatus(){
         boolean statusChange = false;
         for(Piece p:Piece.allPieces){
-            if(p.getClass() == King.class){
-                continue;
-            }
-            if(p.checkStatus == true){
-                if(!firstCheck){
-                    firstCheck = true;
+            if(p!=null) {
+                if (p.getClass() == King.class) {
+                    continue;
                 }
-                checked  = true;
-                statusChange = true;
+                if (p.checkStatus == true) {
+                    if (!firstCheck) {
+                        firstCheck = true;
+                    }
+                    checked = true;
+                    statusChange = true;
+                }
             }
         }
         if(!statusChange){
@@ -45,7 +47,6 @@ public class King extends Piece{
                     continue;
                 }
                 if (testValid(i,j)) {
-                    System.out.println("i: "+i+" j: "+j);
                     this.validMoves[this.numValidMoves] = new Position(this.pos.x + i, this.pos.y + j);
                     this.numValidMoves++;
                 }

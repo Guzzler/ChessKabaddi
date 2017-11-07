@@ -15,21 +15,4 @@ public class Position{
         this.x = p.x;
         this.y = p.y;
     }
-    public static int add(int x,int y){
-        return (x+y);
-    }
-
-    @Override
-    public boolean equals(Object ob) {
-        if (ob == null)
-            return false;
-        if (ob.getClass() != getClass())
-            return false;
-        Position other = (Position)ob;
-        if(other.x == this.x && other.y ==this.y)
-            return true;
-        else{
-            return false;
-        }
-    }
 }

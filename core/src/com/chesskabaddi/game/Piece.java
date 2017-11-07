@@ -17,7 +17,7 @@ public class Piece {
     static{
         PIECEHEIGHT=150;
         PIECEWIDTH=150;
-        allPieces = new Piece[10];
+        allPieces = new Piece[20];
         numPieces=0;
     }
     Position pos;
@@ -71,9 +71,8 @@ public class Piece {
 
     }
 
-    public void getValidMoves(King k){
+    public void getValidMoves(King k){}
         // used as a base function to call the various valid move functions for each piece
-    }
 
     // takes the King as that is essential to check the check condition
     protected boolean testValid(int i,int j,King king){
@@ -89,7 +88,7 @@ public class Piece {
                 if (currPiece !=null && currPiece.pos.x == (this.pos.x+i) && (currPiece.pos.y) == (this.pos.y+j)){
                     if(currPiece.getClass() == King.class && this.getClass() != King.class){
                         this.checkStatus = true;
-                        //king.updateCheckStatus();
+                        king.updateCheckStatus();
                     }
                     return false;
                 }

@@ -48,30 +48,33 @@ public class Attacker {
         Position currCheckPos = new Position(5,5);
         Position oldPos = new Position(5,5);
         for (Piece p: Piece.allPieces){
-            p.getValidMoves(opponent.king); // get all valid moves before making a move
+            if(p!=null) {
+                p.getValidMoves(opponent.king); // get all valid moves before making a move
+            }
         }
         int minKingMoves = 10;
 
         // checking all moves for all pieces and finding the one that leaves the king with the least number of moves
-        for (Piece currPiece: Piece.allPieces){
-            if(currPiece.getClass() == King.class){
-                continue;
-            }
-            else{
-                for(int i=0;i<currPiece.numValidMoves;i++){
-                    currCheckPos.changePos(currPiece.validMoves[i]);
-                    oldPos.changePos(currPiece.pos);
-                    currPiece.changePiecePos(currCheckPos);
-                    currPiece.getValidMoves(opponent.king);
-                    opponent.king.getValidMoves(opponent.king);
-                    int numValid = opponent.king.numValidMoves;
-                    if(numValid <= minKingMoves){
-                        pieceToMove = currPiece;
-                        posToMove.changePos(currPiece.pos);
-                        minKingMoves = numValid;
+        for (Piece currPiece: Piece.allPieces) {
+            if (currPiece != null) {
+                if (currPiece.getClass() == King.class) {
+                    continue;
+                } else {
+                    for (int i = 0; i < currPiece.numValidMoves; i++) {
+                        currCheckPos.changePos(currPiece.validMoves[i]);
+                        oldPos.changePos(currPiece.pos);
+                        currPiece.changePiecePos(currCheckPos);
+                        currPiece.getValidMoves(opponent.king);
+                        opponent.king.getValidMoves(opponent.king);
+                        int numValid = opponent.king.numValidMoves;
+                        if (numValid <= minKingMoves) {
+                            pieceToMove = currPiece;
+                            posToMove.changePos(currPiece.pos);
+                            minKingMoves = numValid;
+                        }
+                        currPiece.changePiecePos(oldPos);
+                        currPiece.getValidMoves(opponent.king);
                     }
-                    currPiece.changePiecePos(oldPos);
-                    currPiece.getValidMoves(opponent.king);
                 }
             }
         }

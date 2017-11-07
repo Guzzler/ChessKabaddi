@@ -185,7 +185,9 @@ public class GameScreen implements Screen,InputProcessor {
         SQUAREHEIGHT = (height)/5;
         SQUAREWIDTH = (width)/8;
         for (Piece currPiece: Piece.allPieces) {
-            currPiece.changePieceViewPos();
+            if(currPiece!=null){
+                currPiece.changePieceViewPos();
+            }
         }
     }
 
@@ -230,7 +232,9 @@ public class GameScreen implements Screen,InputProcessor {
             attacker.toggleActive();
             defender.toggleActive();
             for(Piece p:Piece.allPieces){
-                p.getValidMoves(defender.king);
+                if(p!=null) {
+                    p.getValidMoves(defender.king);
+                }
             }
             try{
                 inferCheckMate();
@@ -247,8 +251,10 @@ public class GameScreen implements Screen,InputProcessor {
             attacker.toggleActive();
             defender.toggleActive();
             for(Piece p:Piece.allPieces){
-                p.checkStatus = false;
-                p.getValidMoves(defender.king);
+                if(p!=null) {
+                    p.checkStatus = false;
+                    p.getValidMoves(defender.king);
+                }
             }
             if (defender.king.firstCheck) {
                 defender.incrementPoints();
@@ -261,7 +267,9 @@ public class GameScreen implements Screen,InputProcessor {
             currSelectedPiece = Piece.findPiece(mouseX, mouseY,attacker,defender);
             currMovePiece= currSelectedPiece;
             for(Piece p: Piece.allPieces){
-                p.getValidMoves(defender.king);
+                if(p!=null) {
+                    p.getValidMoves(defender.king);
+                }
             }
             if (currMovePiece != null) {
                 currMovePiece.getValidMoves(defender.king);
@@ -274,8 +282,10 @@ public class GameScreen implements Screen,InputProcessor {
                 currSelectedPiece.changePiecePos(currMovePosition);
                 currSelectedPiece.changePieceViewPos();
                 for (Piece p : Piece.allPieces) {
-                    p.checkStatus = false;
-                    p.getValidMoves(defender.king);
+                    if(p!=null) {
+                        p.checkStatus = false;
+                        p.getValidMoves(defender.king);
+                    }
                 }
                 if (defender.king.firstCheck) {
                     defender.incrementPoints();
@@ -290,7 +300,9 @@ public class GameScreen implements Screen,InputProcessor {
                 currSelectedPiece.changePiecePos(currMovePosition);
                 currSelectedPiece.changePieceViewPos();
                 for (Piece p : Piece.allPieces) {
-                    p.getValidMoves(defender.king);
+                    if(p!=null) {
+                        p.getValidMoves(defender.king);
+                    }
                 }
                 try{
                     inferCheckMate();

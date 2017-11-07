@@ -48,7 +48,7 @@ project(":core") {
 //}
 
 pitest {
-    targetClasses = ['com.chesskabaddi.game.*']
+    targetClasses = ['com.chesskabaddi.game.Position','com.chesskabaddi.game.Attacker','com.chesskabaddi.game.Defender','com.chesskabaddi.game.Piece','com.chesskabaddi.game.Knight','com.chesskabaddi.game.King','com.chesskabaddi.game.Bishop','com.chesskabaddi.game.MyTestClass']
     pitestVersion = "1.1.5"
     threads = 4
     outputFormats = ['XML', 'HTML']
