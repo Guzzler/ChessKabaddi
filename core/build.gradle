@@ -27,6 +27,7 @@ dependencies {
 project(":core") {
     dependencies {
         compile "com.badlogicgames.gdx:gdx-ai:1.8.0"
+        compile "io.socket:socket.io-client:1.0.0"
     }
 }
 

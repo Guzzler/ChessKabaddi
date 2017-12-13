@@ -7,8 +7,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Rectangle;
-import net.dermetfan.gdx.physics.box2d.PositionController;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+
 
 public class SelectMenu implements Screen,InputProcessor {
     final ChessKabaddi game;
@@ -17,6 +18,7 @@ public class SelectMenu implements Screen,InputProcessor {
     Texture playerSelectImage;
     int currHeight;
     int currWidth;
+    private Socket socket;
 
     public SelectMenu(final ChessKabaddi game){
         this.game = game;
@@ -89,6 +91,7 @@ public class SelectMenu implements Screen,InputProcessor {
         int mouseY = Gdx.input.getY();
         if(mouseY<(currHeight/2)){
             GameScreen mainGame = new GameScreen(game,true,false);
+            connectSocket();
             game.setScreen(mainGame);
             Gdx.input.setInputProcessor(mainGame);
             dispose();
@@ -102,6 +105,16 @@ public class SelectMenu implements Screen,InputProcessor {
             dispose();
         }
         return false;
+    }
+
+    public void connectSocket(){
+        try {
+            socket = IO.socket("http://localhost:8000");
+            socket.connect();
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
     }
 
     @Override
