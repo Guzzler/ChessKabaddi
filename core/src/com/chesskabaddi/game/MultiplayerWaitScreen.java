@@ -5,20 +5,31 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import io.socket.client.IO;
 import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+import org.json.JSONObject;
 
 public class MultiplayerWaitScreen implements Screen,InputProcessor {
     final ChessKabaddi game;
     OrthographicCamera camera;
     private Socket socket;
     boolean connected;
+    boolean side;
+    String playerID;
+    String opponentID;
 
     public MultiplayerWaitScreen(final ChessKabaddi game, Socket socket){
         this.game = game;
         this.socket = socket;
         this.connected = false;
+        this.side = true;
+        this.playerID ="null";
+        this.opponentID ="null";
         camera = new OrthographicCamera();
         camera.setToOrtho(false,1200,750);
+        connectSocket();
+        configSocket();
 
     }
 
@@ -33,11 +44,13 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
         game.batch.begin();
         if(!connected) {
             game.font.draw(game.batch, "Waiting for a player to be matched up with...", 500, 400);
+            game.font.draw(game.batch, "player ID:"+playerID, 500, 300);
         }
         else{
             game.font.draw(game.batch, "Player Matched ! Click to start !", 500, 400);
+            game.font.draw(game.batch, "Opponent player ID:"+opponentID, 500, 300);
             if(Gdx.input.isTouched()){
-                GameScreen mainGame = new GameScreen(game,true,false,true);
+                GameScreen mainGame = new GameScreen(game,true,side,true);
                 game.setScreen(mainGame);
                 Gdx.input.setInputProcessor(mainGame);
                 dispose();
@@ -46,6 +59,46 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
         game.batch.end();
 
 
+    }
+
+    public void connectSocket(){
+        try {
+            socket = IO.socket("http://localhost:8000");
+            socket.connect();
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+    }
+
+    public void configSocket(){
+      socket.on("socketID", args -> {
+          JSONObject playerDetails = (JSONObject) args[0];
+          try{
+                int start = playerDetails.getInt("playerStart");
+                playerID= playerDetails.getString("id");
+                System.out.println("playerID"+playerID);
+                System.out.println("start"+start);
+                if(start%2==0){
+                    side = false;
+                }
+          }
+          catch(Exception e){
+              System.out.println(e);
+          }
+      });
+      socket.on("playerConnected", args -> {
+         JSONObject OpponentDetails = (JSONObject) args[0];
+         try{
+               opponentID = OpponentDetails.getString("opponentID");
+               System.out.println("Opponent ID"+opponentID);
+               connected = true;
+         }
+         catch(Exception e){
+             System.out.println(e);
+         }
+
+      });
     }
     @Override
     public void resize(int width, int height) {

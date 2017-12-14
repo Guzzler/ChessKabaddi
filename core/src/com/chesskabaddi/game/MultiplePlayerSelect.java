@@ -89,7 +89,6 @@ public class MultiplePlayerSelect implements Screen,InputProcessor {
         int mouseY = Gdx.input.getY();
         System.out.println(screenY+mouseY);
         if(mouseY<(currHeight/2)){
-            connectSocket();
             MultiplayerWaitScreen waitScreen = new MultiplayerWaitScreen(game,socket);
             game.setScreen(waitScreen);
             Gdx.input.setInputProcessor(waitScreen);
@@ -105,15 +104,7 @@ public class MultiplePlayerSelect implements Screen,InputProcessor {
     }
 
 
-    public void connectSocket(){
-        try {
-            socket = IO.socket("http://localhost:8000");
-            socket.connect();
-        }
-        catch(Exception e){
-            System.out.println(e);
-        }
-    }
+
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
