@@ -1,32 +1,25 @@
 package com.chesskabaddi.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import io.socket.client.IO;
 import io.socket.client.Socket;
 
-
-public class SelectMenu implements Screen,InputProcessor {
+public class MultiplayerWaitScreen implements Screen,InputProcessor {
     final ChessKabaddi game;
-    boolean singlePlayer;
     OrthographicCamera camera;
-    Texture playerSelectImage;
-    int currHeight;
-    int currWidth;
     private Socket socket;
+    boolean connected;
 
-    public SelectMenu(final ChessKabaddi game){
+    public MultiplayerWaitScreen(final ChessKabaddi game, Socket socket){
         this.game = game;
+        this.socket = socket;
+        this.connected = false;
         camera = new OrthographicCamera();
         camera.setToOrtho(false,1200,750);
-        playerSelectImage = new Texture(Gdx.files.internal("playerSelectScreen.jpg"));
-        currHeight =750;
-        currWidth = 1200;
+
     }
 
     @Override
@@ -38,15 +31,24 @@ public class SelectMenu implements Screen,InputProcessor {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.batch.draw(playerSelectImage, 0, 0, 1200, 750);
+        if(!connected) {
+            game.font.draw(game.batch, "Waiting for a player to be matched up with...", 500, 400);
+        }
+        else{
+            game.font.draw(game.batch, "Player Matched ! Click to start !", 500, 400);
+            if(Gdx.input.isTouched()){
+                GameScreen mainGame = new GameScreen(game,true,false,true);
+                game.setScreen(mainGame);
+                Gdx.input.setInputProcessor(mainGame);
+                dispose();
+            }
+        }
         game.batch.end();
 
 
     }
     @Override
     public void resize(int width, int height) {
-        currHeight = height;
-        currWidth = width;
     }
 
     @Override
@@ -88,20 +90,6 @@ public class SelectMenu implements Screen,InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        int mouseY = Gdx.input.getY();
-        if(mouseY<(currHeight/2)){
-            MultiplePlayerSelect multipleGame = new MultiplePlayerSelect(game);
-            game.setScreen(multipleGame);
-            Gdx.input.setInputProcessor(multipleGame);
-            dispose();
-        }
-        else if(mouseY<currHeight){
-
-            SinglePlayerSelect singleGame = new SinglePlayerSelect(game);
-            game.setScreen(singleGame);
-            Gdx.input.setInputProcessor(singleGame);
-            dispose();
-        }
         return false;
     }
 
@@ -125,4 +113,3 @@ public class SelectMenu implements Screen,InputProcessor {
         return false;
     }
 }
-

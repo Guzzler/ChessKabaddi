@@ -22,6 +22,7 @@ public class GameScreen implements Screen,InputProcessor {
     private static int SQUAREHEIGHT = 150;
     int mouseX,mouseY;
     boolean multiplayer;
+    boolean internet;
     boolean sideSelect; // true for attacker, false for defender
     Attacker attacker;
     Defender defender;
@@ -33,11 +34,10 @@ public class GameScreen implements Screen,InputProcessor {
     Position currMovePosition;
 
 
-    public GameScreen(final ChessKabaddi game,boolean multSelect, boolean typeSelect) {
+    public GameScreen(final ChessKabaddi game,boolean multSelect, boolean typeSelect,boolean internetSelect) {
         this.game = game;
 
-        // load all images required
-
+        internet = internetSelect;
         multiplayer = multSelect;
         sideSelect = typeSelect;
         backgroundImage = new Texture(Gdx.files.internal("background.png"));

@@ -87,13 +87,13 @@ public class SinglePlayerSelect implements Screen,InputProcessor {
         int mouseY = Gdx.input.getY();
         System.out.println(screenY+mouseY);
         if(mouseY<(currHeight/2)){
-            GameScreen mainGame = new GameScreen(game,false,false);
+            GameScreen mainGame = new GameScreen(game,false,false,false);
             game.setScreen(mainGame);
             Gdx.input.setInputProcessor(mainGame);
             dispose();
         }
         else if(mouseY<currHeight){
-            GameScreen mainGame = new GameScreen(game,false,true);
+            GameScreen mainGame = new GameScreen(game,false,true,false);
             game.setScreen(mainGame);
             Gdx.input.setInputProcessor(mainGame);
             dispose();

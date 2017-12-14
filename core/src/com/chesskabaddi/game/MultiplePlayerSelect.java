@@ -1,7 +1,6 @@
 package com.chesskabaddi.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -11,20 +10,19 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 
 
-public class SelectMenu implements Screen,InputProcessor {
+public class MultiplePlayerSelect implements Screen,InputProcessor {
     final ChessKabaddi game;
-    boolean singlePlayer;
     OrthographicCamera camera;
-    Texture playerSelectImage;
+    Texture multiplePlayerSelectImage;
     int currHeight;
     int currWidth;
     private Socket socket;
 
-    public SelectMenu(final ChessKabaddi game){
+    public MultiplePlayerSelect(final ChessKabaddi game){
         this.game = game;
         camera = new OrthographicCamera();
         camera.setToOrtho(false,1200,750);
-        playerSelectImage = new Texture(Gdx.files.internal("playerSelectScreen.jpg"));
+        multiplePlayerSelectImage = new Texture(Gdx.files.internal("multiplePlayerSelect.png"));
         currHeight =750;
         currWidth = 1200;
     }
@@ -38,7 +36,7 @@ public class SelectMenu implements Screen,InputProcessor {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.batch.draw(playerSelectImage, 0, 0, 1200, 750);
+        game.batch.draw(multiplePlayerSelectImage, 0, 0, 1200, 750);
         game.batch.end();
 
 
@@ -89,20 +87,32 @@ public class SelectMenu implements Screen,InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         int mouseY = Gdx.input.getY();
+        System.out.println(screenY+mouseY);
         if(mouseY<(currHeight/2)){
-            MultiplePlayerSelect multipleGame = new MultiplePlayerSelect(game);
-            game.setScreen(multipleGame);
-            Gdx.input.setInputProcessor(multipleGame);
+            connectSocket();
+            MultiplayerWaitScreen waitScreen = new MultiplayerWaitScreen(game,socket);
+            game.setScreen(waitScreen);
+            Gdx.input.setInputProcessor(waitScreen);
             dispose();
         }
         else if(mouseY<currHeight){
-
-            SinglePlayerSelect singleGame = new SinglePlayerSelect(game);
-            game.setScreen(singleGame);
-            Gdx.input.setInputProcessor(singleGame);
+            GameScreen mainGame = new GameScreen(game,true,false,false);
+            game.setScreen(mainGame);
+            Gdx.input.setInputProcessor(mainGame);
             dispose();
         }
         return false;
+    }
+
+
+    public void connectSocket(){
+        try {
+            socket = IO.socket("http://localhost:8000");
+            socket.connect();
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
     }
 
     @Override
