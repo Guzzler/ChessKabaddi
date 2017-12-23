@@ -6,6 +6,7 @@ public class King extends Piece{
     boolean firstCheck;
     private boolean checked;
     private int uncheckedMovesLeft;
+    int index;
 
     public King(Position pos){
         super(pos);
@@ -13,7 +14,13 @@ public class King extends Piece{
         firstCheck = false;
         uncheckedMovesLeft =10;
         this.numValidMoves=1;
+        index =1;
     }
+
+    public int getIndex() {
+        return index;
+    }
+
     public void updateCheckStatus(){
         boolean statusChange = false;
         for(Piece p:Piece.allPieces){

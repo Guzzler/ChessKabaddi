@@ -50,7 +50,7 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
             game.font.draw(game.batch, "Player Matched ! Click to start !", 500, 400);
             game.font.draw(game.batch, "Opponent player ID:"+opponentID, 500, 300);
             if(Gdx.input.isTouched()){
-                GameScreen mainGame = new GameScreen(game,true,side,true);
+                MultiplayerGameScreen mainGame = new MultiplayerGameScreen(game,side,socket,opponentID);
                 game.setScreen(mainGame);
                 Gdx.input.setInputProcessor(mainGame);
                 dispose();

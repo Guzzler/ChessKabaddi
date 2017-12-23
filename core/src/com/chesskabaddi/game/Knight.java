@@ -7,11 +7,17 @@ public class Knight extends Piece {
 
     boolean check;
     boolean checkMate;
+    int index;
 
-    public Knight(Position pos) {
+    public Knight(Position pos,int indexArg) {
         super(pos);
         check = false;
         checkMate = false;
+        index = indexArg;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     @Override

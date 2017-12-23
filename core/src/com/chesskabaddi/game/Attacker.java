@@ -32,14 +32,14 @@ public class Attacker {
 
     public void initKnight(int index, Position pos){
         if(index == 1){
-            knight1 = new Knight(pos);
+            knight1 = new Knight(pos,index);
         }
         else if(index ==2){
-            knight2 = new Knight(pos);
+            knight2 = new Knight(pos,index);
         }
     }
     public void initBishop(Position pos){
-        bishop = new Bishop(pos);
+        bishop = new Bishop(pos,1);
     }
     public void makeAttackerAIDecision(Defender opponent){
 

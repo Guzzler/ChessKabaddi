@@ -71,6 +71,9 @@ public class Piece {
 
     }
 
+    public int getIndex(){
+        return 1;
+    }
     public void getValidMoves(King k){}
         // used as a base function to call the various valid move functions for each piece
 

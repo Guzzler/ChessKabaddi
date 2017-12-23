@@ -5,10 +5,16 @@ import com.badlogic.gdx.graphics.Texture;
 public class Bishop extends Piece {
 
     boolean checkStatus;
+    int index;
 
-    public Bishop(Position pos) {
+    public Bishop(Position pos,int indexArg) {
         super(pos);
         checkStatus = false;
+        index = indexArg;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     @Override
