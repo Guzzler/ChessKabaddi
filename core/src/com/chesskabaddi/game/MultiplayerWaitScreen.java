@@ -80,7 +80,7 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
 
     public void connectSocket(){
         try {
-            socket = IO.socket("http://localhost:3000");
+            socket = IO.socket("http://139.59.95.27:3000");
             socket.connect();
         }
         catch(Exception e){
