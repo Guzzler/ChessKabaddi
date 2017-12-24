@@ -18,12 +18,14 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
     boolean side;
     String playerID;
     String opponentID;
+    boolean startgame;
 
     public MultiplayerWaitScreen(final ChessKabaddi game, Socket socket){
         this.game = game;
         this.socket = socket;
         this.connected = false;
         this.side = true;
+        this.startgame = false;
         this.playerID ="null";
         this.opponentID ="null";
         camera = new OrthographicCamera();
@@ -46,11 +48,26 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
             game.font.draw(game.batch, "Waiting for a player to be matched up with...", 500, 400);
             game.font.draw(game.batch, "player ID:"+playerID, 500, 300);
         }
+
         else{
             game.font.draw(game.batch, "Player Matched ! Click to start !", 500, 400);
             game.font.draw(game.batch, "Opponent player ID:"+opponentID, 500, 300);
             if(Gdx.input.isTouched()){
-                MultiplayerGameScreen mainGame = new MultiplayerGameScreen(game,side,socket,opponentID);
+                try {
+                    JSONObject opponentDetails = new JSONObject();
+                    opponentDetails.put("opponentID", opponentID);
+                    socket.emit("startGame", opponentDetails);
+                    MultiplayerGameScreen mainGame = new MultiplayerGameScreen(game, side, socket, opponentID);
+                    game.setScreen(mainGame);
+                    Gdx.input.setInputProcessor(mainGame);
+                    dispose();
+                }
+                catch (Exception e){
+                    System.out.println(e);
+                }
+            }
+            if (startgame == true){
+                MultiplayerGameScreen mainGame = new MultiplayerGameScreen(game, side, socket, opponentID);
                 game.setScreen(mainGame);
                 Gdx.input.setInputProcessor(mainGame);
                 dispose();
@@ -63,10 +80,11 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
 
     public void connectSocket(){
         try {
-            socket = IO.socket("http://localhost:8000");
+            socket = IO.socket("http://localhost:3000");
             socket.connect();
         }
         catch(Exception e){
+            e.printStackTrace(System.out);
             System.out.println(e);
         }
     }
@@ -77,8 +95,6 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
           try{
                 int start = playerDetails.getInt("playerStart");
                 playerID= playerDetails.getString("id");
-                System.out.println("playerID"+playerID);
-                System.out.println("start"+start);
                 if(start%2==0){
                     side = false;
                 }
@@ -87,11 +103,13 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
               System.out.println(e);
           }
       });
+      socket.on("startGame", args -> {
+            startgame = true;
+      });
       socket.on("playerConnected", args -> {
          JSONObject OpponentDetails = (JSONObject) args[0];
          try{
                opponentID = OpponentDetails.getString("opponentID");
-               System.out.println("Opponent ID"+opponentID);
                connected = true;
          }
          catch(Exception e){

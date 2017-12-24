@@ -187,6 +187,9 @@ public class MultiplayerGameScreen implements Screen,InputProcessor {
                 System.out.println(e);
             }
         });
+        socket.on("opponentDisconnect", args -> {
+            game.setScreen(new DisconnectScreen(game));
+        });
     }
 
     @Override
@@ -220,10 +223,10 @@ public class MultiplayerGameScreen implements Screen,InputProcessor {
             game.font.draw(game.batch, "Make your move!", 950, 300);
         }
         else if(defender.isActive() && sideSelect){ // Wait for Defender to play
-            game.font.draw(game.batch, "Wait for player(Defender) to make their move", 950, 300);
+            game.font.draw(game.batch, "Wait for player(Defender) ", 950, 300);
         }
         else if(attacker.isActive() && !sideSelect){ // Wait for Attacker to play
-            game.font.draw(game.batch, "Wait for player(Attacker) to make their move", 950, 300);
+            game.font.draw(game.batch, "Wait for player(Attacker)", 950, 300);
         }
 
         game.batch.draw(backgroundImage, background.x, background.y, background.width, background.height);
