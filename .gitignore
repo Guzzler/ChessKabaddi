@@ -127,3 +127,4 @@ Thumbs.db
 classes
 desktop/out
 desktop/src/META-INF
+.gitignore
