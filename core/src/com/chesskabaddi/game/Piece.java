@@ -13,6 +13,7 @@ public class Piece {
     private static final int PIECEWIDTH;
     static Piece allPieces[];
     static int numPieces;
+    int uniqueID;
 
     static{
         PIECEHEIGHT=150;
@@ -42,6 +43,9 @@ public class Piece {
 
     }
 
+    public int getUniqueID() {
+        return uniqueID;
+    }
 
     public void changePiecePos(Position p){
         pos.x = p.x;

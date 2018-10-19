@@ -19,6 +19,7 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
     String playerID;
     String opponentID;
     boolean startgame;
+    int gameID;
 
     public MultiplayerWaitScreen(final ChessKabaddi game, Socket socket){
         this.game = game;
@@ -57,7 +58,7 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
                     JSONObject opponentDetails = new JSONObject();
                     opponentDetails.put("opponentID", opponentID);
                     socket.emit("startGame", opponentDetails);
-                    MultiplayerGameScreen mainGame = new MultiplayerGameScreen(game, side, socket, opponentID);
+                    MultiplayerGameScreen mainGame = new MultiplayerGameScreen(game, side, socket, opponentID,gameID);
                     game.setScreen(mainGame);
                     Gdx.input.setInputProcessor(mainGame);
                     dispose();
@@ -67,7 +68,7 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
                 }
             }
             if (startgame == true){
-                MultiplayerGameScreen mainGame = new MultiplayerGameScreen(game, side, socket, opponentID);
+                MultiplayerGameScreen mainGame = new MultiplayerGameScreen(game, side, socket, opponentID,gameID);
                 game.setScreen(mainGame);
                 Gdx.input.setInputProcessor(mainGame);
                 dispose();
@@ -117,6 +118,7 @@ public class MultiplayerWaitScreen implements Screen,InputProcessor {
               JSONObject OpponentDetails = (JSONObject) args[0];
               try {
                   opponentID = OpponentDetails.getString("opponentID");
+                  gameID=OpponentDetails.getInt("gameName");
                   connected = true;
               } catch (Exception e) {
                   System.out.println(e);

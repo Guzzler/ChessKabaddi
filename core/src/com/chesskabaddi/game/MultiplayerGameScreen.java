@@ -40,11 +40,12 @@ public class MultiplayerGameScreen implements Screen,InputProcessor {
     Position currMovePosition;
     Socket socket;
     String opponentID;
+    int gameID;
 
 
-    public MultiplayerGameScreen(final ChessKabaddi game, boolean typeSelect,Socket socketArg,String opponentIDArg) {
+    public MultiplayerGameScreen(final ChessKabaddi game, boolean typeSelect,Socket socketArg,String opponentIDArg,int gameID) {
         this.game = game;
-
+        this.gameID=gameID;
         socket = socketArg;
         opponentID = opponentIDArg;
         sideSelect = typeSelect;
@@ -108,7 +109,9 @@ public class MultiplayerGameScreen implements Screen,InputProcessor {
         currMovePosition = null;
     }
 
-
+    public int getCoord(int x,int y){
+        return y*6 + x;
+    }
     public void defenderMove(){
         attacker.toggleActive();
         defender.toggleActive();
@@ -277,6 +280,7 @@ public class MultiplayerGameScreen implements Screen,InputProcessor {
             JSONObject pointsData = new JSONObject();
             pointsData.put("points",defender.getPoints());
             pointsData.put("opponentID",opponentID);
+            pointsData.put("gameName",gameID);
             socket.emit("gameOver",pointsData);
             TimeUnit.SECONDS.sleep(2);
             game.setScreen(new GameOver(game,defender.getPoints()));
@@ -286,6 +290,7 @@ public class MultiplayerGameScreen implements Screen,InputProcessor {
             JSONObject pointsData = new JSONObject();
             pointsData.put("points",50);
             pointsData.put("opponentID",opponentID);
+            pointsData.put("gameName",gameID);
             socket.emit("gameOver",pointsData);
             TimeUnit.SECONDS.sleep(2);
             game.setScreen(new GameOver(game,50));
@@ -438,6 +443,9 @@ public class MultiplayerGameScreen implements Screen,InputProcessor {
                     defenderDetails.put("movePieceIndex",defender.king.getIndex());
                     defenderDetails.put("movePosX",currMovePosition.x);
                     defenderDetails.put("movePosY",currMovePosition.y);
+                    defenderDetails.put("coordinates",getCoord(currMovePosition.x,currMovePosition.y));
+                    defenderDetails.put("uniquePieceID",0);
+                    defenderDetails.put("gameID",gameID);
                     socket.emit("defenderMove",defenderDetails);
                 }
                 catch(Exception e){
@@ -468,6 +476,9 @@ public class MultiplayerGameScreen implements Screen,InputProcessor {
                     attackerDetails.put("movePieceIndex",currSelectedPiece.getIndex());
                     attackerDetails.put("movePosX",currMovePosition.x);
                     attackerDetails.put("movePosY",currMovePosition.y);
+                    attackerDetails.put("coordinates",getCoord(currMovePosition.x,currMovePosition.y));
+                    attackerDetails.put("uniquePieceID",currSelectedPiece.getUniqueID());
+                    attackerDetails.put("gameID",gameID);
                     socket.emit("attackerMove",attackerDetails);
                 }
                 catch(Exception e){
