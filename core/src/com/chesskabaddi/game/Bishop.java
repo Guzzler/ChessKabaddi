@@ -6,13 +6,17 @@ public class Bishop extends Piece {
 
     boolean checkStatus;
     int index;
+    int uniqueID;
 
     public Bishop(Position pos,int indexArg) {
         super(pos);
         checkStatus = false;
         index = indexArg;
+        uniqueID=4;
     }
-
+    public int getUniqueID() {
+        return uniqueID;
+    }
     public int getIndex() {
         return index;
     }

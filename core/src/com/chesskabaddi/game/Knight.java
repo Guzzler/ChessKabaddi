@@ -8,14 +8,18 @@ public class Knight extends Piece {
     boolean check;
     boolean checkMate;
     int index;
+    int uniqueID;
 
     public Knight(Position pos,int indexArg) {
         super(pos);
         check = false;
         checkMate = false;
         index = indexArg;
+        uniqueID=1+indexArg;
     }
-
+    public int getUniqueID() {
+        return uniqueID;
+    }
     public int getIndex() {
         return index;
     }

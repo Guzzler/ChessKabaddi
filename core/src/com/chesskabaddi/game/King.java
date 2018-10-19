@@ -13,6 +13,7 @@ public class King extends Piece{
     private boolean checked;
     private int uncheckedMovesLeft;
     int index;
+    int uniqueID;
 //    Position lastMoves[]= new Position[5];
     ArrayList<Position> lastMoves = new ArrayList<Position>();
 
@@ -24,6 +25,7 @@ public class King extends Piece{
         uncheckedMovesLeft =10;
         this.numValidMoves=1;
         index =1;
+        uniqueID=0;
     }
 
     public int getIndex() {
